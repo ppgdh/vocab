@@ -811,17 +811,21 @@ function renderWordList(){
   }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
 }
 function jumpToWord(idx){
-  // 从词表点击跳转到学习该词：构建正常队列并定位到该词位置
+  // 从词表点击跳转到学习该词：构建全量队列并准确定位
   reviewMode=false;
+  if(!prog.difficult) prog.difficult=[];
+  // 构建全量队列(按A-Z顺序),不受学习计划限制
+  queue=Array.from({length:DATA.length},function(_,i){return i;});
+  dayLength=queue.length;
+  prog.mode='free';
+  prog.pos=idx;  // 队列是[0,1,2,...],pos=idx即定位到该词
   document.getElementById('wlPanel').classList.remove('show');
+  document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
-  buildQueue();
-  // 在队列中找到该词的位置
-  var pos=queue.indexOf(idx);
-  if(pos>=0){ prog.pos=pos; }
   save(LS_PROG,prog);
   render();
-  toast('已定位到该单词');
+  updateMarkBtn();
+  toast('已定位到: '+DATA[idx][0]);
 }
 // ================= 哈希路由 =================
 function handleHash(){
