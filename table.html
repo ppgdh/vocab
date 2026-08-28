@@ -497,8 +497,8 @@ function closeWordList(){
 function buildLetters(){
   const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   const box=document.getElementById('wlLetters');
-  box.innerHTML='<span class="active" data-l="all" onclick="filterLetter('all')">全部</span>'+
-    letters.map(l=>'<span data-l="'+l+'" onclick="filterLetter(''+l+'')">'+l+'</span>').join('');
+  box.innerHTML=`<span class="active" data-l="all" onclick="filterLetter('all')">全部</span>`+
+    letters.map(l=>`<span data-l="${l}" onclick="filterLetter('${l}')">${l}</span>`).join('');
 }
 function filterLetter(l){
   wlFilter=l;
@@ -526,7 +526,7 @@ function renderWordList(){
   // 限制渲染数量(性能)
   const show=items.slice(0,500);
   list.innerHTML=show.map(it=>
-    '<div class="wl-item" onclick="jumpToWord('+it.i+')">'+
+    `<div class="wl-item" onclick="jumpToWord(${it.i})">`+
     '<span class="w">'+esc(it.w)+'</span>'+
     '<span class="p">'+esc(it.ipa)+'</span>'+
     '<span class="m">'+esc(it.mean)+'</span>'+
