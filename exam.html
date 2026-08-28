@@ -208,6 +208,25 @@ function renderExam(){
   renderObjective(content, type, area);
 }
 
+
+function cleanWatermark(text){
+  if(!text) return '';
+  // 移除页码水印: "13000#英语(专升本)试题第6页(共8页)"
+  text = text.replace(/13000#?英语\(专升本\)试题第?\d*页?\(?共?\d*页?\)?/g, '');
+  text = text.replace(/13\s*0\s*0\s*0\s*英\s*语\s*\(\s*专[^)]*\)?/g, '');
+  // 移除页码: "(共8页)" "(共17页)" "第6页共8页"
+  text = text.replace(/[（(]共\d+页[）)]/g, '');
+  text = text.replace(/第\d+页共\d+页/g, '');
+  text = text.replace(/第\d+页/g, '');
+  // 移除"13000#英语"等残留
+  text = text.replace(/13000#?英语[^\n]*/g, '');
+  // 移除OCR垃圾字符
+  text = text.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
+  text = text.replace(/#[Xx]#?/g, '');
+  text = text.replace(/\*[#=*]+\*/g, '');
+  return text.trim();
+}
+
 function extractPassageAndQuestions(content, type){
   const lines = content.split('\n');
   let passage = '';
@@ -326,7 +345,8 @@ function parseChoiceQuestions(content, type){
         }
         let om = optPart.match(re);
         if(om){
-          options.push(L + '. ' + om[1].trim());
+          let val = cleanWatermark(om[1].trim());
+          if(val.length > 0) options.push(L + '. ' + val);
         }
       }
       rest = qTextPart.trim();
@@ -335,10 +355,11 @@ function parseChoiceQuestions(content, type){
     rest = rest.replace(/\s+/g, ' ').trim();
     
     if(options.length > 0){
-      questions.push({num: num, text: rest, options: options});
+      questions.push({num: num, text: cleanWatermark(rest), options: options});
     }
   });
   
+  passage = cleanWatermark(passage);
   return {passage, questions};
 }
 
@@ -368,7 +389,7 @@ function parseMatchingSection(content){
       let m = t2.match(re);
       let text = m ? m[1].trim() : ('第' + num + '题');
       text = text.replace(/[A-F]\..*$/, '').trim();
-      questions.push({num: num, text: text, options: opts2});
+      questions.push({num: num, text: cleanWatermark(text), options: opts2});
     }
   }
   
@@ -400,9 +421,10 @@ function extractOptionsFromText(text, count){
     let m = flat.match(re);
     if(m){
       let val = m[1].trim();
-      // 移除可能混入的题目编号
       val = val.replace(/\d+\.Paragraph[^A-F]*/gi, '').trim();
-      options.push(L + '. ' + val);
+      val = cleanWatermark(val);
+      // 如果清理后选项为空或太短，跳过
+      if(val.length > 0) options.push(L + '. ' + val);
     }
   }
   
@@ -418,7 +440,8 @@ function extractWordOptions(text, count){
   while((m = re.exec(flat)) !== null){
     let letter = m[1];
     let word = m[2];
-    if(!found[letter] && word.length > 1){
+    word = cleanWatermark(word);
+    if(!found[letter] && word.length > 1 && /^[a-zA-Z]+$/.test(word)){
       found[letter] = word;
     }
   }
