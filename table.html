@@ -819,8 +819,19 @@ function showStudy(){
     render();
     return;
   }
-  // 从复习模式回来,恢复原学习进度(持久化,页面刷新也能恢复)
-  if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
+  // 从复习模式回来,优先恢复完整状态快照(确保directMode/pos/directPos/studyPos全部回到复习前)
+  if(prog.reviewSnapshot){
+    directMode=prog.reviewSnapshot.directMode;
+    prog.directMode=prog.reviewSnapshot.directMode;
+    prog.pos=prog.reviewSnapshot.pos;
+    prog.directPos=prog.reviewSnapshot.directPos;
+    if(prog.reviewSnapshot.studyPos!==undefined) prog.studyPos=prog.reviewSnapshot.studyPos;
+    else if(prog.studyPos!==undefined) delete prog.studyPos;
+    delete prog.reviewSnapshot;
+    if(prog.savedStudyPos!==undefined) delete prog.savedStudyPos;
+  }
+  // 兼容旧数据: 只有savedStudyPos时恢复pos
+  else if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
     prog.pos=prog.savedStudyPos;
     delete prog.savedStudyPos;
   }
@@ -903,9 +914,10 @@ function startDifficultReview(){
   }
   if(reviewList.length===0){ toast('当前分类没有难点词'); return; }
   reviewMode=true;
+  // 保存完整状态快照(退出复习时完整恢复,不依赖studyPos是否存在)
+  prog.reviewSnapshot={directMode:directMode,pos:prog.pos,directPos:prog.directPos,studyPos:prog.studyPos};
   directMode=false;
   prog.directMode=false;
-  if(!prog.savedStudyPos && prog.savedStudyPos!==0) prog.savedStudyPos=prog.pos;  // 持久化保存原学习进度
   queue=reviewList.slice();
   dayLength=queue.length;
   prog.pos=0;
@@ -1046,6 +1058,17 @@ function resetStudy(){
 }
 
 function startFromWordList(){
+  // 如果从复习模式直接切入,先完整恢复复习前状态(防止复习进度覆盖studyPos)
+  if(prog.reviewSnapshot){
+    directMode=prog.reviewSnapshot.directMode;
+    prog.directMode=prog.reviewSnapshot.directMode;
+    prog.pos=prog.reviewSnapshot.pos;
+    prog.directPos=prog.reviewSnapshot.directPos;
+    if(prog.reviewSnapshot.studyPos!==undefined) prog.studyPos=prog.reviewSnapshot.studyPos;
+    else if(prog.studyPos!==undefined) delete prog.studyPos;
+    delete prog.reviewSnapshot;
+    if(prog.savedStudyPos!==undefined) delete prog.savedStudyPos;
+  }
   reviewMode=false;
   if(!directMode) prog.studyPos=prog.pos;  // 保存继续学习进度
   directMode=true;
@@ -1344,10 +1367,10 @@ function showWrongList(){
 function startWrongReview(){
   if(!prog.wrongWords||prog.wrongWords.length===0){ toast('错题库为空'); return; }
   reviewMode=true;
+  // 保存完整状态快照(退出复习时完整恢复)
+  prog.reviewSnapshot={directMode:directMode,pos:prog.pos,directPos:prog.directPos,studyPos:prog.studyPos};
   directMode=false;
   prog.directMode=false;
-  // 持久化保存原学习进度(和难点库复习一致),退出复习时showStudy会自动恢复
-  if(prog.savedStudyPos===undefined || prog.savedStudyPos===null) prog.savedStudyPos=prog.pos;
   queue=prog.wrongWords.slice();
   dayLength=queue.length;
   prog.pos=0;
