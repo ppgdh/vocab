@@ -367,7 +367,7 @@ function render(){
   document.getElementById('cardNum').textContent=pos+' / '+total;
   // 释义重置为隐藏
   const m=document.getElementById('meaning');
-  m.classList.add('hidden'); m.innerHTML='<span class="hint">轻点显示释义</span>'; m.dataset.def=esc(w[2]||'');
+  m.classList.remove('hidden'); m.innerHTML=esc(w[2]||'暂无释义'); m.dataset.def=esc(w[2]||'');
   renderCardTags();
   // 计划信息
   const planText=document.getElementById('planText');
@@ -602,7 +602,8 @@ function resetProgress(){
 
 // ================= 视图切换 =================
 let reviewMode=false;  // 难记库复习模式
-let wlFilter='all';    // 词表过滤: all / difficult / 字母
+let wlFilter='all';
+let wlTagFilter='all';    // 词表过滤: all / difficult / 字母
 function setActiveNav(id){
   document.querySelectorAll('#bottomNav button').forEach(b=>b.classList.remove('active'));
   const el=document.getElementById(id);
@@ -624,32 +625,61 @@ function showWordList(){
   setActiveNav('navList');
   buildLetters(); renderWordList();
 }
+function setTagFilter(id){
+  wlTagFilter=id;
+  renderWordList();
+}
+
 function showDifficult(){
-  const diffs=prog?prog.difficult:[];
-  if(!diffs||diffs.length===0){
-    toast('还没有标记难记词，学习时点「标记难点」即可加入');
+  // 收集所有有标记的词
+  const allTagged=[];
+  if(prog && prog.tags){
+    for(var k in prog.tags){ if(prog.tags[k] && prog.tags[k].length>0) allTagged.push(parseInt(k)); }
+  }
+  // 兼容旧difficult
+  if(prog && prog.difficult){
+    for(var di=0;di<prog.difficult.length;di++){
+      if(allTagged.indexOf(prog.difficult[di])<0) allTagged.push(prog.difficult[di]);
+    }
+  }
+  if(allTagged.length===0){
+    toast('还没有标记任何单词，学习时点「🏷️标记」即可加入');
     return;
   }
-  // 显示难记词列表(词表面板过滤模式)
   wlFilter='difficult';
-  document.getElementById('wlModeLabel').textContent='· 难记库 ('+diffs.length+')';
+  wlTagFilter='all';
+  document.getElementById('wlModeLabel').textContent='· 标记库 ('+allTagged.length+')';
   document.getElementById('wlSearch').value='';
   document.getElementById('wlPanel').classList.add('show');
   setActiveNav('navDiff');
   buildLetters(); renderWordList();
 }
 function startDifficultReview(){
-  const diffs=prog?prog.difficult:[];
-  if(!diffs||diffs.length===0){ toast('难记库为空'); return; }
+  // 收集当前筛选的词
+  const tagCfg=getTagCfg();
+  const reviewList=[];
+  for(let i=0;i<DATA.length;i++){
+    const wtags=getWordTags(i);
+    const hasHard=prog.difficult.indexOf(i)>=0;
+    const hasAnyTag=wtags.length>0 || hasHard;
+    if(!hasAnyTag) continue;
+    if(wlTagFilter!=='all'){
+      if(wlTagFilter==='hard'){
+        if(!hasHard && wtags.indexOf('hard')<0) continue;
+      }else if(wtags.indexOf(wlTagFilter)<0) continue;
+    }
+    reviewList.push(i);
+  }
+  if(reviewList.length===0){ toast('当前分类没有单词'); return; }
   reviewMode=true;
-  queue=diffs.slice();
+  queue=reviewList.slice();
   dayLength=queue.length;
   prog.pos=0;
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navDiff');
   render();
-  toast('难记库复习 · 共 '+queue.length+' 词');
+  toast('开始复习 · 共 '+queue.length+' 词');
 }
 function closeWordList(){
   document.getElementById('wlPanel').classList.remove('show');
@@ -672,32 +702,56 @@ function filterLetter(l){
 function renderWordList(){
   const q=document.getElementById('wlSearch').value.trim().toLowerCase();
   const list=document.getElementById('wlList');
-  const diffSet=new Set(prog?prog.difficult:[]);
+  const tagCfg=getTagCfg();
   let items=[];
   for(let i=0;i<DATA.length;i++){
     const w=DATA[i][0], ipa=DATA[i][1], mean=DATA[i][2];
+    const wtags=getWordTags(i);
+    const hasHard=prog.difficult.indexOf(i)>=0;
     if(wlFilter==='difficult'){
-      if(!diffSet.has(i)) continue;
+      // 标记库: 显示有任意标记的词(含旧difficult)
+      const hasAnyTag=wtags.length>0 || hasHard;
+      if(!hasAnyTag) continue;
+      // 按标记类型筛选
+      if(wlTagFilter!=='all'){
+        if(wlTagFilter==='hard'){
+          if(!hasHard && wtags.indexOf('hard')<0) continue;
+        }else if(wtags.indexOf(wlTagFilter)<0) continue;
+      }
     } else if(wlFilter!=='all' && w[0].toUpperCase()!==wlFilter){
       continue;
     }
     if(q && w.toLowerCase().indexOf(q)<0 && mean.toLowerCase().indexOf(q)<0) continue;
-    items.push({i,w,ipa,mean,diff:diffSet.has(i)});
+    items.push({i,w,ipa,mean,tags:wtags,hasHard:hasHard});
   }
   document.getElementById('wlCount').textContent='共 '+items.length+' 词';
   let header='';
-  if(wlFilter==='difficult' && items.length>0){
-    header='<div style="padding:10px 0;text-align:center"><button onclick="startDifficultReview()" style="background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff;border:none;height:44px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🎯 开始复习难记词 ('+items.length+')</button></div>';
+  if(wlFilter==='difficult'){
+    // 标记分类筛选按钮
+    var filterBtns='<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px">'+
+      '<button onclick="setTagFilter(\'all\')" style="padding:6px 14px;border-radius:99px;border:1.5px solid '+(wlTagFilter==='all'?'#14b8a6':'#e2e8f0')+';background:'+(wlTagFilter==='all'?'#f0fdfa':'#fff')+';color:'+(wlTagFilter==='all'?'#0d9488':'#64748b')+';font-size:13px;font-weight:600;cursor:pointer">全部</button>';
+    for(var fi=0;fi<tagCfg.length;fi++){
+      var t=tagCfg[fi];
+      var active=(wlTagFilter===t.id);
+      filterBtns+='<button onclick="setTagFilter(\''+t.id+'\')" style="padding:6px 14px;border-radius:99px;border:1.5px solid '+(active?t.color:'#e2e8f0')+';background:'+(active?t.color+'22':'#fff')+';color:'+(active?t.color:'#64748b')+';font-size:13px;font-weight:600;cursor:pointer">'+t.name+'</button>';
+    }
+    filterBtns+='</div>';
+    if(items.length>0){
+      header=filterBtns+'<div style="padding:6px 0 10px;text-align:center"><button onclick="startDifficultReview()" style="background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff;border:none;height:42px;padding:0 24px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">🎯 开始复习 ('+items.length+'词)</button></div>';
+    }else{
+      header=filterBtns;
+    }
   }
   if(items.length===0){
     list.innerHTML=header+'<div class="wl-empty">没有找到匹配的单词</div>';
     return;
   }
   const show=items.slice(0,500);
-  const tagCfg=getTagCfg();
   list.innerHTML=header+show.map(function(it){
     var wsafe=esc(it.w).replace(/'/g,"&#39;");
-    var wtags=getWordTags(it.i);
+    var wtags=it.tags;
+    // 兼容旧difficult: 如果有hard但tags中没有,显示难点标签
+    if(it.hasHard && wtags.indexOf('hard')<0) wtags=wtags.concat(['hard']);
     var tagHtml=wtags.map(function(tid){
       var t=tagCfg.find(function(x){return x.id===tid;});
       return t?'<span class="wl-tag" style="background:'+t.color+'">'+t.name+'</span>':'';
