@@ -1098,6 +1098,7 @@ function handleHash(){
   else if(h==='quiz'){ if(!queue.length) buildQueue(); render(); openQuizConfig(); }
   else if(h==='settings'){ if(!queue.length) buildQueue(); render(); openSettings(); }
   else if(h==='direct'){ startFromWordList(); }
+  else if(h==='study'){ showStudy(); }  // 明确切回继续学习模式
   else if(prog.directMode){
     // 直接学习模式: 保持当前状态,不切回继续学习(防止studyPos覆盖直接学习进度)
     directMode=true;
