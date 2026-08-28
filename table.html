@@ -551,6 +551,23 @@ function getWordTags(idx){
 }
 // 一键切换难点标记(不弹面板)
 function toggleHardTag(){
+  // 错题库复习模式: 点击"已学会"从错题库移除该单词
+  if(wrongReviewMode){
+    const wi=currentWordIndex();
+    if(wi<0) return;
+    if(!prog.wrongWords) prog.wrongWords=[];
+    const idx2=prog.wrongWords.indexOf(wi);
+    if(idx2>=0){ prog.wrongWords.splice(idx2,1); save(LS_PROG,prog); toast('已从错题库移除 ✓'); }
+    // 从复习队列中移除
+    const qi=queue.indexOf(wi);
+    if(qi>=0) queue.splice(qi,1);
+    dayLength=queue.length;
+    if(prog.pos>=queue.length) prog.pos=Math.max(0,queue.length-1);
+    if(queue.length===0){ toast('错题库已全部学会！'); showStudy(); return; }
+    render();
+    return;
+  }
+  // 正常标记难点
   if(!queue.length) return;
   const wi=currentWordIndex();
   if(!prog.tags) prog.tags={};
@@ -582,6 +599,12 @@ function updateMarkBtn(){
   if(!btn) return;
   const wi=currentWordIndex();
   if(wi<0){ btn.textContent='🏷️ 标记难点'; btn.style.background='linear-gradient(135deg,#8b5cf6,#6366f1)'; return; }
+  // 错题库复习模式: 按钮显示"已学会"
+  if(wrongReviewMode){
+    btn.textContent='✓ 已学会';
+    btn.style.background='linear-gradient(135deg,#10b981,#059669)';
+    return;
+  }
   const cur=getWordTags(wi);
   const isHard=cur.indexOf('hard')>=0 || (prog.difficult && prog.difficult.indexOf(wi)>=0);
   if(isHard){
@@ -769,7 +792,7 @@ function resetProgress(){
 // ================= 启动 =================
 
 // ================= 视图切换 =================
-let reviewMode=false;
+let reviewMode=false; let wrongReviewMode=false; wrongReviewMode=false;
 let directMode=false;  // 难点库模式
 let jumpMode=false;  // 临时查看模式(从词表点击跳转)
 let wlFilter='all';
@@ -828,7 +851,7 @@ function showStudy(){
     prog.directMode=false;
   }else{
     // 用户主动点击继续学习: 总是切回继续学习模式
-    reviewMode=false;
+    reviewMode=false; wrongReviewMode=false;
     directMode=false;
     prog.directMode=false;
   }
@@ -1054,7 +1077,7 @@ function startFromWordList(){
     delete prog.reviewSnapshot;
     if(prog.savedStudyPos!==undefined) delete prog.savedStudyPos;
   }
-  reviewMode=false;
+  reviewMode=false; wrongReviewMode=false;
   if(!directMode) prog.studyPos=prog.pos;  // 保存继续学习进度
   directMode=true;
   prog.directMode=true;
@@ -1082,7 +1105,7 @@ function jumpToWord(idx){
   jumpMode=true;
   directMode=false;
   prog.directMode=false;
-  reviewMode=false;
+  reviewMode=false; wrongReviewMode=false;
   if(!prog.difficult) prog.difficult=[];
   // 构建全量队列(按A-Z顺序),不受学习计划限制
   queue=Array.from({length:DATA.length},function(_,i){return i;});
@@ -1352,6 +1375,7 @@ function showWrongList(){
 function startWrongReview(){
   if(!prog.wrongWords||prog.wrongWords.length===0){ toast('错题库为空'); return; }
   reviewMode=true;
+  wrongReviewMode=true;
   // 保存完整状态快照(退出复习时完整恢复)
   prog.reviewSnapshot={directMode:directMode,pos:prog.pos,directPos:prog.directPos,studyPos:prog.studyPos};
   directMode=false;
