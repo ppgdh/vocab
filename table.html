@@ -529,7 +529,8 @@ function next(learned){
   if(!queue.length) return;
   if(learned!==false) learned=true;
   const wi=currentWordIndex();
-  if(learned && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
+  // 仅在正常学习模式(继续/直接)下记录已学,复习和临时查看不影响已学列表
+  if(learned && !reviewMode && !jumpMode && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
   if(prog.pos<queue.length-1){ prog.pos++; }
   if(directMode && !jumpMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
@@ -743,8 +744,8 @@ function goHome(){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){
-      if(dx<0){ next(true); }      // 左滑 → 下一个
-      else{ prev(); }                // 右滑 → 上一个
+      if(dx<0){ prev(); }           // 左滑 → 上一个
+      else{ next(true); }            // 右滑 → 下一个
     }
   },false);
   // 键盘
@@ -1180,14 +1181,7 @@ function getQuizPool(type){
   return pool.filter(function(i){return DATA[i]&&DATA[i][2];});
 }
 
-function shuffle(arr){
-  const a=arr.slice();
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
+
 
 function startQuiz(){
   const pool=getQuizPool(_quizType);
