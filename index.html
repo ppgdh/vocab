@@ -24,6 +24,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 .progress-bar{background:#eee;border-radius:8px;height:10px;margin-top:8px;overflow:hidden;}
 .progress-bar i{display:block;height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:8px;transition:width .4s;}
 .nav{display:flex;flex-direction:column;gap:12px;flex:1;}
+.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.nav-btn.half{padding:14px 12px;flex-direction:column;align-items:flex-start;gap:8px;}
+.nav-btn.half .ico{width:36px;height:36px;font-size:22px;}
+.nav-btn.half .txt .t{font-size:15px;}
+.nav-btn.half .txt .d{font-size:11px;}
+.nav-btn.half .arrow{display:none;}
+.nav-btn.direct{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;}
+.nav-btn.direct .txt .d{color:rgba(255,255,255,.75);}
+.ico-direct{background:rgba(255,255,255,.2);}
 .nav-btn{display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px 18px;text-decoration:none;color:#333;box-shadow:0 4px 16px rgba(0,0,0,.08);transition:transform .15s,box-shadow .15s;border:none;width:100%;cursor:pointer;font-size:16px;font-family:inherit;text-align:left;}
 .nav-btn:active{transform:scale(.97);box-shadow:0 2px 8px rgba(0,0,0,.1);}
 .nav-btn .ico{font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;flex-shrink:0;}
@@ -61,22 +70,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
   </div>
 
   <div class="nav">
-    <a class="nav-btn primary" href="table.html?v=11#study" id="btnStudy">
-      <div class="ico ico-study">▶️</div>
-      <div class="txt"><div class="t" id="btnStudyText">开始学习</div><div class="d" id="btnStudyDesc">自由学习模式</div></div>
-      <div class="arrow">›</div>
-    </a>
-    <a class="nav-btn" href="table.html?v=11#wordlist">
+    <div class="nav-row">
+      <a class="nav-btn primary half" href="table.html?v=12#study" id="btnStudy">
+        <div class="ico ico-study">▶️</div>
+        <div class="txt"><div class="t" id="btnStudyText">继续学习</div><div class="d" id="btnStudyDesc">接续上次进度</div></div>
+      </a>
+      <a class="nav-btn direct half" href="table.html?v=12#direct">
+        <div class="ico ico-direct">📖</div>
+        <div class="txt"><div class="t">直接学习</div><div class="d">从词首开始全部</div></div>
+      </a>
+    </div>
+    <a class="nav-btn" href="table.html?v=12#wordlist">
       <div class="ico ico-list">📖</div>
       <div class="txt"><div class="t">总单词表</div><div class="d">A–Z 浏览全部单词，支持搜索</div></div>
       <div class="arrow">›</div>
     </a>
-    <a class="nav-btn" href="table.html?v=11#difficult">
+    <a class="nav-btn" href="table.html?v=12#difficult">
       <div class="ico ico-diff">⚠️</div>
       <div class="txt"><div class="t">难点库</div><div class="d">专攻标记的难点生词，卡片模式</div></div>
       <div class="arrow">›</div>
     </a>
-    <a class="nav-btn" href="table.html?v=11#settings">
+    <a class="nav-btn" href="table.html?v=12#settings">
       <div class="ico ico-setting">⚙️</div>
       <div class="txt"><div class="t">学习设置</div><div class="d">学习计划天数、每轮数量、背诵顺序</div></div>
       <div class="arrow">›</div>
