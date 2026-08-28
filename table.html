@@ -285,7 +285,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ================= 队列构建 =================
 function initProg(){
   if(!prog){
-    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,perm:[],lastDate:'',finished:false};
+    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,directPos:0,perm:[],lastDate:'',finished:false};
   }
   if(!prog.tags) prog.tags={};
   if(!prog.difficult) prog.difficult=[];
@@ -650,8 +650,7 @@ function resetProgress(){
 
 // ================= 视图切换 =================
 let reviewMode=false;
-let directMode=false;
-let savedStudyPos=0;  // 难点库模式
+let directMode=false;  // 难点库模式
 let wlFilter='all';
 let wlTagFilter='all';    // 词表过滤: all / difficult / 字母
 function setActiveNav(id){
@@ -660,9 +659,19 @@ function setActiveNav(id){
   if(el) el.classList.add('active');
 }
 function showStudy(){
-  if(reviewMode){ prog.pos=savedStudyPos; }  // 从复习模式回来,恢复原进度
+  // 从复习模式回来,恢复原学习进度(持久化,页面刷新也能恢复)
+  if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
+    prog.pos=prog.savedStudyPos;
+    delete prog.savedStudyPos;
+  }
+  // 从直接学习回来,恢复继续学习进度
+  if(prog.studyPos!==undefined){
+    prog.pos=prog.studyPos;
+    delete prog.studyPos;
+  }
   reviewMode=false;
   directMode=false;
+  prog.directMode=false;
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
@@ -724,13 +733,16 @@ function startDifficultReview(){
   }
   if(reviewList.length===0){ toast('当前分类没有难点词'); return; }
   reviewMode=true;
-  savedStudyPos=prog.pos;  // 保存原学习进度
+  directMode=false;
+  prog.directMode=false;
+  if(!prog.savedStudyPos && prog.savedStudyPos!==0) prog.savedStudyPos=prog.pos;  // 持久化保存原学习进度
   queue=reviewList.slice();
   dayLength=queue.length;
   prog.pos=0;
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navDiff');
+  save(LS_PROG,prog);  // 保存原进度到localStorage
   render();
   toast('开始复习 · 共 '+queue.length+' 词');
 }
@@ -822,7 +834,7 @@ function renderWordList(){
 function resetStudy(){
   if(reviewMode){ prog.pos=0; }
   else if(directMode){ prog.directPos=0; prog.pos=0; }
-  else{ prog.pos=0; prog.perm=[]; }
+  else{ prog.pos=0; prog.perm=[]; if(prog.studyPos) delete prog.studyPos; }
   save(LS_PROG,prog);
   render();
   updateMarkBtn();
@@ -831,7 +843,9 @@ function resetStudy(){
 
 function startFromWordList(){
   reviewMode=false;
+  if(!directMode) prog.studyPos=prog.pos;  // 保存继续学习进度
   directMode=true;
+  prog.directMode=true;
   if(!prog.difficult) prog.difficult=[];
   if(!prog.directPos) prog.directPos=0;
   queue=Array.from({length:DATA.length},function(_,i){return i;});
@@ -877,6 +891,7 @@ function handleHash(){
 window.addEventListener('hashchange',handleHash);
 
 // 初始化队列（确保 render 时有数据）
+if(prog && prog.directMode) directMode=true;
 if(!queue || queue.length===0) buildQueue();
 handleHash();
 </script>
