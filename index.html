@@ -75,43 +75,56 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 
   <div class="nav">
     <div class="nav-row">
-      <a class="nav-btn primary half" href="table.html?v=16#study" id="btnStudy">
+      <a class="nav-btn primary half" href="table.html?v=17#study" id="btnStudy">
         <div class="ico ico-study">▶️</div>
         <div class="txt"><div class="t" id="btnStudyText">继续学习</div><div class="d" id="btnStudyDesc">接续上次进度</div></div>
       </a>
-      <a class="nav-btn direct half" href="table.html?v=16#direct">
+      <a class="nav-btn direct half" href="table.html?v=17#direct">
         <div class="ico ico-direct">📖</div>
         <div class="txt"><div class="t">直接学习</div><div class="d">从词首开始全部</div></div>
       </a>
     </div>
-    <a class="nav-btn" href="table.html?v=16#wordlist">
+    <a class="nav-btn" href="table.html?v=17#wordlist">
       <div class="ico ico-list">📖</div>
       <div class="txt"><div class="t">总单词表</div><div class="d">A–Z 浏览全部单词，支持搜索</div></div>
       <div class="arrow">›</div>
     </a>
-    <a class="nav-btn wrong" href="table.html?v=16#wrong" onclick="location.href='table.html?v=16#wrong';return false;">
+    <a class="nav-btn wrong" href="table.html?v=17#wrong" onclick="location.href='table.html?v=17#wrong';return false;">
       <div class="ico ico-wrong">❌</div>
       <div class="txt"><div class="t">错题库</div><div class="d">测验答错自动收录，专攻薄弱词</div></div>
       <div class="arrow">›</div>
     </a>
-    <a class="nav-btn" href="table.html?v=16#difficult">
+    <a class="nav-btn" href="table.html?v=17#difficult">
       <div class="ico ico-diff">⚠️</div>
       <div class="txt"><div class="t">难点库</div><div class="d">专攻标记的难点生词，卡片模式</div></div>
       <div class="arrow">›</div>
     </a>
-    <a class="nav-btn quiz" href="table.html?v=16#quiz" onclick="location.href='table.html?v=16#quiz';return false;">
+    <a class="nav-btn quiz" href="table.html?v=17#quiz" onclick="location.href='table.html?v=17#quiz';return false;">
       <div class="ico ico-quiz">📝</div>
       <div class="txt"><div class="t">单词测验</div><div class="d">选择题/拼写题，全部/已学/难点三种题库</div></div>
       <div class="arrow">›</div>
     </a>
-    <a class="nav-btn" href="table.html?v=16#settings">
+    <a class="nav-btn" href="table.html?v=17#settings">
       <div class="ico ico-setting">⚙️</div>
       <div class="txt"><div class="t">学习设置</div><div class="d">学习计划天数、每轮数量、背诵顺序</div></div>
       <div class="arrow">›</div>
     </a>
   </div>
 
+  <div style="text-align:center;margin-top:16px">
+    <button onclick="resetAllData()" style="background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3);height:36px;padding:0 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">🗑️ 重置所有学习数据</button>
+  </div>
   <div class="footer">数据保存在本地浏览器 · 清除浏览器数据会丢失进度</div>
+  <script>
+  function resetAllData(){
+    if(confirm('确定要重置所有学习数据吗？\n此操作将清除：学习进度、已学单词、难点标记、错题库、学习计划，且不可恢复！')){
+      localStorage.removeItem('vocab_cfg2');
+      localStorage.removeItem('vocab_prog2');
+      alert('所有学习数据已重置！');
+      location.reload();
+    }
+  }
+  </script>
 </div>
 
 <script>
