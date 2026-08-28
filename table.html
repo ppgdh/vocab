@@ -416,14 +416,27 @@ function initProg(){
 }
 function buildQueue(){
   initProg();
-  // 页面刷新后自动恢复：从直接学习/复习模式回来时恢复原继续学习进度
-  if(prog.studyPos!==undefined){
-    prog.pos=prog.studyPos;
+  // 页面刷新后自动恢复：从临时查看/直接学习/复习模式回来时恢复原状态
+  if(prog.jumpSaved){
+    directMode=prog.jumpSaved.directMode;
+    reviewMode=prog.jumpSaved.reviewMode;
+    prog.pos=prog.jumpSaved.pos;
+    prog.directPos=prog.jumpSaved.directPos;
+    prog.directMode=prog.jumpSaved.directMode;  // 同步到prog,防止后续showStudy重置
+    delete prog.jumpSaved;
     delete prog.studyPos;
-  }
-  if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
-    prog.pos=prog.savedStudyPos;
     delete prog.savedStudyPos;
+    jumpMode=false;
+    // jumpSaved包含完整状态,跳过后续恢复
+  }else{
+    if(prog.studyPos!==undefined){
+      prog.pos=prog.studyPos;
+      delete prog.studyPos;
+    }
+    if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
+      prog.pos=prog.savedStudyPos;
+      delete prog.savedStudyPos;
+    }
   }
   const n=DATA.length;
   let set, mode='free';
@@ -531,14 +544,14 @@ function next(learned){
   const wi=currentWordIndex();
   if(learned && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
   if(prog.pos<queue.length-1){ prog.pos++; }
-  if(directMode) prog.directPos=prog.pos;
+  if(directMode && !jumpMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
   render();
 }
 function prev(){
   if(!queue.length) return;
   if(prog.pos>0){ prog.pos--; }
-  if(directMode) prog.directPos=prog.pos;
+  if(directMode && !jumpMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
   render();
 }
@@ -771,6 +784,7 @@ function resetProgress(){
 // ================= 视图切换 =================
 let reviewMode=false;
 let directMode=false;  // 难点库模式
+let jumpMode=false;  // 临时查看模式(从词表点击跳转)
 let wlFilter='all';
 let wlTagFilter='all';    // 词表过滤: all / difficult / 字母
 function setActiveNav(id){
@@ -779,6 +793,25 @@ function setActiveNav(id){
   if(el) el.classList.add('active');
 }
 function showStudy(){
+  // 从临时查看模式回来,完全恢复原状态(jumpSaved包含完整状态,直接恢复并返回)
+  if(prog.jumpSaved){
+    directMode=prog.jumpSaved.directMode;
+    reviewMode=prog.jumpSaved.reviewMode;
+    prog.pos=prog.jumpSaved.pos;
+    prog.directPos=prog.jumpSaved.directPos;
+    prog.directMode=prog.jumpSaved.directMode;
+    delete prog.jumpSaved;
+    // jumpSaved包含完整状态,清除其他临时恢复标记,防止buildQueue中被覆盖
+    delete prog.studyPos;
+    delete prog.savedStudyPos;
+    jumpMode=false;
+    save(LS_PROG,prog);  // 先保存恢复后的状态,防止buildQueue的initProg重新加载覆盖
+    document.getElementById('wlPanel').classList.remove('show');
+    document.getElementById('donePage').classList.remove('show');
+    setActiveNav('navStudy');
+    buildQueue(); render();
+    return;
+  }
   // 从复习模式回来,恢复原学习进度(持久化,页面刷新也能恢复)
   if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
     prog.pos=prog.savedStudyPos;
@@ -790,8 +823,8 @@ function showStudy(){
     delete prog.studyPos;
   }
   reviewMode=false;
-  directMode=false;
-  prog.directMode=false;
+  directMode=prog.directMode || false;
+  if(!directMode) prog.directMode=false;
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
@@ -1023,19 +1056,19 @@ function startFromWordList(){
 }
 
 function jumpToWord(idx){
-  // 从词表点击跳转到学习该词：构建全量队列并准确定位
-  // 改为直接学习模式,保存原继续学习进度,退出时showStudy自动恢复
+  // 临时查看模式：保存原状态(继续学习/直接学习/复习),完全不影响原有进度
+  if(!jumpMode){
+    prog.jumpSaved={directMode:directMode,reviewMode:reviewMode,pos:prog.pos,directPos:prog.directPos||0};
+  }
+  jumpMode=true;
+  directMode=false;
   reviewMode=false;
-  if(!directMode) prog.studyPos=prog.pos;  // 保存继续学习进度
-  directMode=true;
-  prog.directMode=true;
   if(!prog.difficult) prog.difficult=[];
   // 构建全量队列(按A-Z顺序),不受学习计划限制
   queue=Array.from({length:DATA.length},function(_,i){return i;});
   dayLength=queue.length;
   prog.mode='free';
   prog.pos=idx;  // 队列是[0,1,2,...],pos=idx即定位到该词
-  prog.directPos=idx;  // 同步直接学习进度
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
