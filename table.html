@@ -1137,6 +1137,9 @@ function checkQuizChoice(el){
     fb.className='quiz-feedback no show';
     fb.textContent='✗ 回答错误！正确答案: '+correctMean;
     if(quizState.wrongList.indexOf(q)<0) quizState.wrongList.push(q);
+    // 立即加入错题库
+    if(!prog.wrongWords) prog.wrongWords=[];
+    if(prog.wrongWords.indexOf(q)<0){ prog.wrongWords.push(q); save(LS_PROG,prog); }
   }
   document.getElementById('quizNextBtn').classList.add('show');
   if(quizState.current>=quizState.count-1){
@@ -1160,6 +1163,9 @@ function checkQuizSpell(){
     fb.className='quiz-feedback no show';
     fb.textContent='✗ 拼写错误！正确答案: '+DATA[q][0];
     if(quizState.wrongList.indexOf(q)<0) quizState.wrongList.push(q);
+    // 立即加入错题库
+    if(!prog.wrongWords) prog.wrongWords=[];
+    if(prog.wrongWords.indexOf(q)<0){ prog.wrongWords.push(q); save(LS_PROG,prog); }
   }
   document.getElementById('quizNextBtn').classList.add('show');
   if(quizState.current>=quizState.count-1){
@@ -1209,6 +1215,8 @@ function retryQuiz(){
 function closeQuiz(){
   document.getElementById('quizPanel').classList.remove('show');
   quizState=null;
+  if(typeof goHome==='function') goHome();
+  else window.location.href='index.html';
 }
 
 function showWrongListFromQuiz(){
