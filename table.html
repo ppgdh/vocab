@@ -136,6 +136,53 @@
   /* 卡片标记显示 */
   .card-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:10px;min-height:20px;}
   .card-tag{font-size:11px;padding:3px 10px;border-radius:99px;color:#fff;font-weight:600;}
+  /* ===== 测验系统 ===== */
+  .quiz-config{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;z-index:30;}
+  .quiz-config.show{display:flex;}
+  .quiz-config .sheet{background:#fff;width:90%;max-width:380px;border-radius:18px;padding:22px 20px;}
+  .quiz-config h3{font-size:18px;margin-bottom:16px;color:#0f172a;text-align:center;}
+  .quiz-config .q-group{margin-bottom:14px;}
+  .quiz-config .q-label{font-size:13px;color:#64748b;margin-bottom:8px;font-weight:600;}
+  .quiz-config .q-opts{display:flex;gap:8px;flex-wrap:wrap;}
+  .quiz-config .q-opt{flex:1;min-width:70px;padding:10px 8px;border:1.5px solid #e2e8f0;border-radius:10px;text-align:center;font-size:14px;cursor:pointer;background:#fff;color:#475569;}
+  .quiz-config .q-opt.active{border-color:#6366f1;background:#eef2ff;color:#4f46e5;font-weight:700;}
+  .quiz-config .q-start{width:100%;height:48px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;}
+  .quiz-config .q-cancel{width:100%;height:40px;border:none;border-radius:10px;background:#f1f5f9;color:#64748b;font-size:14px;cursor:pointer;margin-top:8px;}
+  /* 测验界面 */
+  .quiz-panel{position:fixed;inset:0;background:linear-gradient(160deg,#667eea,#764ba2);display:none;flex-direction:column;z-index:35;padding:20px;}
+  .quiz-panel.show{display:flex;}
+  .quiz-top{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:16px;}
+  .quiz-top .q-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;}
+  .quiz-top .q-progress{font-size:15px;font-weight:600;}
+  .quiz-card{background:#fff;border-radius:18px;padding:24px 20px;flex:1;display:flex;flex-direction:column;overflow-y:auto;}
+  .quiz-word{font-size:32px;font-weight:800;color:#0f172a;text-align:center;margin-bottom:6px;}
+  .quiz-ipa{font-size:15px;color:#94a3b8;text-align:center;margin-bottom:20px;}
+  .quiz-meaning{font-size:18px;color:#334155;text-align:center;margin-bottom:20px;line-height:1.6;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-opt{padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;cursor:pointer;background:#fff;color:#334155;text-align:left;transition:all .15s;}
+  .quiz-opt:active{transform:scale(.98);}
+  .quiz-opt.correct{border-color:#10b981;background:#ecfdf5;color:#065f46;font-weight:600;}
+  .quiz-opt.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b;}
+  .quiz-opt.disabled{pointer-events:none;opacity:.6;}
+  .quiz-spell-input{width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:18px;text-align:center;outline:none;margin-bottom:12px;}
+  .quiz-spell-input:focus{border-color:#6366f1;}
+  .quiz-spell-btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:16px;font-weight:700;cursor:pointer;}
+  .quiz-feedback{text-align:center;padding:12px;border-radius:10px;margin-top:12px;font-weight:600;font-size:15px;display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-feedback.ok{background:#ecfdf5;color:#065f46;}
+  .quiz-feedback.no{background:#fef2f2;color:#991b1b;}
+  .quiz-next-btn{width:100%;height:46px;border:none;border-radius:12px;background:#f1f5f9;color:#475569;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;display:none;}
+  .quiz-next-btn.show{display:block;}
+  /* 测验结果 */
+  .quiz-result{text-align:center;}
+  .quiz-result .score{font-size:56px;font-weight:800;color:#6366f1;}
+  .quiz-result .score-label{font-size:16px;color:#64748b;margin-bottom:20px;}
+  .quiz-result .result-detail{font-size:14px;color:#475569;margin-bottom:20px;}
+  .quiz-result .result-btns{display:flex;gap:10px;}
+  .quiz-result .result-btns button{flex:1;height:44px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;}
+  .quiz-result .btn-retry{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;}
+  .quiz-result .btn-wrong{background:#fef3c7;color:#92400e;}
+  .quiz-result .btn-close{background:#f1f5f9;color:#64748b;}
 </style>
 </head>
 <body>
@@ -238,6 +285,70 @@
     </div>
   </div>
 
+  <!-- 测验配置弹窗 -->
+  <div class="quiz-config" id="quizConfig">
+    <div class="sheet">
+      <h3>📝 选择测验</h3>
+      <div class="q-group">
+        <div class="q-label">题库类型</div>
+        <div class="q-opts" id="quizTypeOpts">
+          <div class="q-opt active" data-type="all">全部单词</div>
+          <div class="q-opt" data-type="learned">已学习</div>
+          <div class="q-opt" data-type="hard">难点词</div>
+        </div>
+      </div>
+      <div class="q-group">
+        <div class="q-label">测验数量</div>
+        <div class="q-opts" id="quizCountOpts">
+          <div class="q-opt" data-count="5">5题</div>
+          <div class="q-opt active" data-count="10">10题</div>
+          <div class="q-opt" data-count="20">20题</div>
+          <div class="q-opt" data-count="50">50题</div>
+        </div>
+      </div>
+      <div class="q-group">
+        <div class="q-label">测验形式</div>
+        <div class="q-opts" id="quizModeOpts">
+          <div class="q-opt active" data-mode="choice">选择题</div>
+          <div class="q-opt" data-mode="spell">拼写题</div>
+        </div>
+      </div>
+      <button class="q-start" onclick="startQuiz()">开始测验</button>
+      <button class="q-cancel" onclick="closeQuizConfig()">取消</button>
+    </div>
+  </div>
+
+  <!-- 测验界面 -->
+  <div class="quiz-panel" id="quizPanel">
+    <div class="quiz-top">
+      <button class="q-close" onclick="closeQuiz()">✕</button>
+      <div class="q-progress" id="quizProgress">1 / 10</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-word" id="quizWord"></div>
+      <div class="quiz-ipa" id="quizIpa"></div>
+      <div class="quiz-meaning" id="quizMeaning" style="display:none"></div>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div id="quizSpellArea" style="display:none">
+        <input type="text" class="quiz-spell-input" id="quizSpellInput" placeholder="输入单词..." autocomplete="off">
+        <button class="quiz-spell-btn" onclick="checkQuizSpell()">提交答案</button>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-next-btn" id="quizNextBtn" onclick="nextQuiz()">下一题 →</button>
+      <div class="quiz-result" id="quizResult" style="display:none">
+        <div class="score" id="quizScore">0%</div>
+        <div class="score-label">正确率</div>
+        <div class="result-detail" id="quizResultDetail"></div>
+        <div class="result-btns">
+          <button class="btn-retry" onclick="retryQuiz()">再来一次</button>
+          <button class="btn-wrong" onclick="showWrongListFromQuiz()">查看错题</button>
+          <button class="btn-close" onclick="closeQuiz()">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
   <!-- 底部导航 -->
   <nav class="bottomnav" id="bottomNav">
@@ -285,7 +396,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ================= 队列构建 =================
 function initProg(){
   if(!prog){
-    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,directPos:0,perm:[],lastDate:'',finished:false};
+    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,wrongWords:[],directPos:0,perm:[],lastDate:'',finished:false};
   }
   if(!prog.tags) prog.tags={};
   if(!prog.difficult) prog.difficult=[];
@@ -713,6 +824,12 @@ function showDifficult(){
   document.getElementById('wlSearch').value='';
   document.getElementById('wlPanel').classList.add('show');
   setActiveNav('navDiff');
+  // 添加入口: 错题库和测验
+  var extraBtns='<div style="display:flex;gap:8px;justify-content:center;margin:8px 0 4px">'+
+    '<button onclick="showWrongList()" style="background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;border:none;height:38px;padding:0 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">❌ 错题库</button>'+
+    '<button onclick="openQuizConfig()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;height:38px;padding:0 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">📝 测验</button>'+
+    '</div>';
+  document.getElementById('wlList').innerHTML=extraBtns;
   buildLetters(); renderWordList();
 }
 function startDifficultReview(){
@@ -884,6 +1001,8 @@ function handleHash(){
   const h=location.hash.replace('#','').toLowerCase();
   if(h==='wordlist'){ showWordList(); }
   else if(h==='difficult'){ showDifficult(); }
+  else if(h==='wrong'){ showWrongList(); }
+  else if(h==='quiz'){ if(!queue.length) buildQueue(); render(); openQuizConfig(); }
   else if(h==='settings'){ if(!queue.length) buildQueue(); render(); openSettings(); }
   else if(h==='direct'){ startFromWordList(); }
   else { showStudy(); }
@@ -894,6 +1013,286 @@ window.addEventListener('hashchange',handleHash);
 if(prog && prog.directMode) directMode=true;
 if(!queue || queue.length===0) buildQueue();
 handleHash();
+
+// ==================== 测验系统 ====================
+let quizState=null;
+let _quizType='all', _quizCount=10, _quizMode='choice';
+
+function openQuizConfig(){
+  document.getElementById('quizConfig').classList.add('show');
+}
+function closeQuizConfig(){
+  document.getElementById('quizConfig').classList.remove('show');
+}
+// 配置选项点击
+document.addEventListener('click',function(e){
+  const opt=e.target.closest('.q-opt');
+  if(!opt) return;
+  const group=opt.parentElement;
+  group.querySelectorAll('.q-opt').forEach(function(o){o.classList.remove('active');});
+  opt.classList.add('active');
+  if(group.id==='quizTypeOpts') _quizType=opt.dataset.type;
+  if(group.id==='quizCountOpts') _quizCount=parseInt(opt.dataset.count);
+  if(group.id==='quizModeOpts') _quizMode=opt.dataset.mode;
+});
+
+function getQuizPool(type){
+  let pool=[];
+  if(type==='all'){
+    for(let i=0;i<DATA.length;i++) pool.push(i);
+  }else if(type==='learned'){
+    pool=(prog.studied||[]).slice();
+  }else if(type==='hard'){
+    pool=(prog.difficult||[]).slice();
+  }
+  return pool.filter(function(i){return DATA[i]&&DATA[i][2];});
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startQuiz(){
+  const pool=getQuizPool(_quizType);
+  if(pool.length<3){ toast('题库单词不足，至少需要3个'); return; }
+  const count=Math.min(_quizCount,pool.length);
+  const questions=shuffle(pool).slice(0,count);
+  quizState={type:_quizType,count:count,mode:_quizMode,questions:questions,current:0,correct:0,wrongList:[]};
+  closeQuizConfig();
+  document.getElementById('quizPanel').classList.add('show');
+  document.getElementById('quizResult').style.display='none';
+  renderQuiz();
+}
+
+function renderQuiz(){
+  if(!quizState) return;
+  const q=quizState.questions[quizState.current];
+  const w=DATA[q];
+  document.getElementById('quizProgress').textContent=(quizState.current+1)+' / '+quizState.count;
+  document.getElementById('quizFeedback').className='quiz-feedback';
+  document.getElementById('quizFeedback').textContent='';
+  document.getElementById('quizNextBtn').classList.remove('show');
+
+  if(quizState.mode==='choice'){
+    // 选择题: 显示单词,4个释义选项
+    document.getElementById('quizWord').textContent=w[0];
+    document.getElementById('quizWord').style.display='';
+    document.getElementById('quizIpa').textContent=w[1]||'';
+    document.getElementById('quizIpa').style.display='';
+    document.getElementById('quizMeaning').style.display='none';
+    document.getElementById('quizSpellArea').style.display='none';
+    // 生成选项
+    const correctMean=w[2];
+    const distractors=[];
+    const allIdx=[];
+    for(let i=0;i<DATA.length;i++) if(i!==q&&DATA[i][2]) allIdx.push(i);
+    const shuffled=shuffle(allIdx);
+    for(let i=0;i<shuffled.length&&distractors.length<3;i++){
+      const m=DATA[shuffled[i]][2];
+      if(m!==correctMean&&distractors.indexOf(m)<0) distractors.push(m);
+    }
+    const options=shuffle([correctMean].concat(distractors));
+    const box=document.getElementById('quizOptions');
+    box.innerHTML=options.map(function(m,idx){
+      return '<div class="quiz-opt" data-mean="'+esc(m).replace(/"/g,'&quot;')+'" onclick="checkQuizChoice(this)">'+String.fromCharCode(65+idx)+'. '+esc(m)+'</div>';
+    }).join('');
+    box.style.display='flex';
+  }else{
+    // 拼写题: 显示释义,输入单词
+    document.getElementById('quizWord').style.display='none';
+    document.getElementById('quizIpa').style.display='none';
+    document.getElementById('quizMeaning').textContent=w[2];
+    document.getElementById('quizMeaning').style.display='';
+    document.getElementById('quizOptions').style.display='none';
+    document.getElementById('quizSpellArea').style.display='';
+    const input=document.getElementById('quizSpellInput');
+    input.value=''; input.disabled=false;
+    input.focus();
+  }
+}
+
+function checkQuizChoice(el){
+  if(!quizState) return;
+  const q=quizState.questions[quizState.current];
+  const correctMean=DATA[q][2];
+  const chosen=el.dataset.mean;
+  const opts=document.querySelectorAll('.quiz-opt');
+  opts.forEach(function(o){
+    o.classList.add('disabled');
+    if(o.dataset.mean===correctMean) o.classList.add('correct');
+  });
+  const fb=document.getElementById('quizFeedback');
+  if(chosen===correctMean){
+    quizState.correct++;
+    el.classList.add('correct');
+    fb.className='quiz-feedback ok show';
+    fb.textContent='✓ 回答正确！';
+  }else{
+    el.classList.add('wrong');
+    fb.className='quiz-feedback no show';
+    fb.textContent='✗ 回答错误！正确答案: '+correctMean;
+    if(quizState.wrongList.indexOf(q)<0) quizState.wrongList.push(q);
+  }
+  document.getElementById('quizNextBtn').classList.add('show');
+  if(quizState.current>=quizState.count-1){
+    document.getElementById('quizNextBtn').textContent='查看结果 →';
+  }
+}
+
+function checkQuizSpell(){
+  if(!quizState) return;
+  const q=quizState.questions[quizState.current];
+  const correct=DATA[q][0].toLowerCase().trim();
+  const input=document.getElementById('quizSpellInput');
+  const chosen=input.value.toLowerCase().trim();
+  input.disabled=true;
+  const fb=document.getElementById('quizFeedback');
+  if(chosen===correct){
+    quizState.correct++;
+    fb.className='quiz-feedback ok show';
+    fb.textContent='✓ 拼写正确！';
+  }else{
+    fb.className='quiz-feedback no show';
+    fb.textContent='✗ 拼写错误！正确答案: '+DATA[q][0];
+    if(quizState.wrongList.indexOf(q)<0) quizState.wrongList.push(q);
+  }
+  document.getElementById('quizNextBtn').classList.add('show');
+  if(quizState.current>=quizState.count-1){
+    document.getElementById('quizNextBtn').textContent='查看结果 →';
+  }
+}
+
+function nextQuiz(){
+  if(!quizState) return;
+  if(quizState.current>=quizState.count-1){
+    showQuizResult();
+    return;
+  }
+  quizState.current++;
+  document.getElementById('quizNextBtn').textContent='下一题 →';
+  renderQuiz();
+}
+
+function showQuizResult(){
+  if(!quizState) return;
+  // 错题加入错题库
+  if(!prog.wrongWords) prog.wrongWords=[];
+  quizState.wrongList.forEach(function(i){
+    if(prog.wrongWords.indexOf(i)<0) prog.wrongWords.push(i);
+  });
+  save(LS_PROG,prog);
+  const pct=Math.round(quizState.correct/quizState.count*100);
+  document.getElementById('quizScore').textContent=pct+'%';
+  document.getElementById('quizResultDetail').innerHTML='答对 <b>'+quizState.correct+'</b> / '+quizState.count+' 题<br>错题 <b>'+quizState.wrongList.length+'</b> 道已加入错题库';
+  document.getElementById('quizResult').style.display='block';
+  document.getElementById('quizWord').style.display='none';
+  document.getElementById('quizIpa').style.display='none';
+  document.getElementById('quizMeaning').style.display='none';
+  document.getElementById('quizOptions').style.display='none';
+  document.getElementById('quizSpellArea').style.display='none';
+  document.getElementById('quizFeedback').className='quiz-feedback';
+  document.getElementById('quizNextBtn').classList.remove('show');
+}
+
+function retryQuiz(){
+  if(quizState){
+    _quizType=quizState.type; _quizCount=quizState.count; _quizMode=quizState.mode;
+  }
+  startQuiz();
+}
+
+function closeQuiz(){
+  document.getElementById('quizPanel').classList.remove('show');
+  quizState=null;
+}
+
+function showWrongListFromQuiz(){
+  closeQuiz();
+  showWrongList();
+}
+
+// ==================== 错题库 ====================
+function showWrongList(){
+  if(!prog.wrongWords) prog.wrongWords=[];
+  if(prog.wrongWords.length===0){
+    toast('还没有错题，测验答错的词会自动加入');
+    return;
+  }
+  wlFilter='wrong';
+  wlTagFilter='all';
+  document.getElementById('wlModeLabel').textContent='· 错题库 ('+prog.wrongWords.length+')';
+  document.getElementById('wlSearch').value='';
+  document.getElementById('wlPanel').classList.add('show');
+  setActiveNav('navList');
+  buildLetters(); renderWordList();
+}
+
+function startWrongReview(){
+  if(!prog.wrongWords||prog.wrongWords.length===0){ toast('错题库为空'); return; }
+  reviewMode=true;
+  savedStudyPos=prog.pos;
+  queue=prog.wrongWords.slice();
+  dayLength=queue.length;
+  prog.pos=0;
+  document.getElementById('wlPanel').classList.remove('show');
+  document.getElementById('donePage').classList.remove('show');
+  setActiveNav('navList');
+  save(LS_PROG,prog);
+  render();
+  toast('错题复习 · 共 '+queue.length+' 词');
+}
+
+// 扩展renderWordList支持wrong筛选
+(function(){
+  const oldRender=renderWordList;
+  renderWordList=function(){
+    if(wlFilter!=='wrong'){ oldRender(); return; }
+    const q=document.getElementById('wlSearch').value.trim().toLowerCase();
+    const list=document.getElementById('wlList');
+    const wrongSet=new Set(prog.wrongWords||[]);
+    let items=[];
+    for(let i=0;i<DATA.length;i++){
+      if(!wrongSet.has(i)) continue;
+      const w=DATA[i][0],ipa=DATA[i][1],mean=DATA[i][2];
+      if(q&&w.toLowerCase().indexOf(q)<0&&mean.toLowerCase().indexOf(q)<0) continue;
+      items.push({i,w,ipa,mean,tags:getWordTags(i),hasHard:false});
+    }
+    document.getElementById('wlCount').textContent='共 '+items.length+' 词';
+    let header='<div style="padding:10px 0;text-align:center"><button onclick="startWrongReview()" style="background:linear-gradient(90deg,#ef4444,#f97316);color:#fff;border:none;height:44px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🎯 开始复习错题 ('+items.length+')</button></div>';
+    if(items.length===0){ list.innerHTML=header+'<div class="wl-empty">没有找到匹配的错题</div>'; return; }
+    const show=items.slice(0,500);
+    const tagCfg=getTagCfg();
+    list.innerHTML=header+show.map(function(it){
+      var wsafe=esc(it.w).replace(/'/g,"&#39;");
+      var tagHtml=it.tags.map(function(tid){var t=tagCfg.find(function(x){return x.id===tid;});return t?'<span class="wl-tag" style="background:'+t.color+'">'+t.name+'</span>':'';}).join('');
+      return '<div class="wl-item">'+
+      '<span class="w" onclick="playWord(\''+wsafe+'\')" style="cursor:pointer">'+esc(it.w)+' 🔊</span>'+
+      '<span class="p">'+esc(it.ipa)+'</span>'+
+      '<span class="m">'+esc(it.mean)+'</span>'+
+      (tagHtml?'<span class="wl-tags">'+tagHtml+'</span>':'')+
+      '<span onclick="jumpToWord('+it.i+')" style="color:#0ea5e9;font-size:12px;cursor:pointer;flex-shrink:0;padding:3px 10px;border:1px solid #7dd3fc;border-radius:8px;white-space:nowrap">学习</span>'+
+      '</div>';
+    }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条</div>':'');
+  };
+})();
+
+// 扩展buildLetters支持wrong筛选
+(function(){
+  const oldBuild=buildLetters;
+  buildLetters=function(){
+    if(wlFilter==='wrong'){
+      document.getElementById('wlLetters').innerHTML='';
+      return;
+    }
+    oldBuild();
+  };
+})();
+
 </script>
 </body>
 </html>
