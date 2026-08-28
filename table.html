@@ -423,6 +423,8 @@ function buildQueue(){
     prog.pos=prog.jumpSaved.pos;
     prog.directPos=prog.jumpSaved.directPos;
     prog.directMode=prog.jumpSaved.directMode;
+    if(prog.jumpSaved.studyPos!==undefined) prog.studyPos=prog.jumpSaved.studyPos;
+    else if(prog.studyPos!==undefined) delete prog.studyPos;
     delete prog.jumpSaved;
     jumpMode=false;
   }else if(prog.directMode){
@@ -441,32 +443,15 @@ function buildQueue(){
     }
   }
   const n=DATA.length;
-  let set, mode='free';
-  // 计划模式
-  if(cfg.planDays>0){
-    mode='plan';
-    totalDays=cfg.planDays;
-    const t=todayStr();
-    if(prog.lastDate && prog.lastDate!==t){
-      // 新的一天：如果上一天已完成则推进到下一天，重置pos
-      if(prog.pos>=dayLengthOf(prog.dayIndex) && prog.dayIndex<totalDays-1){ prog.dayIndex++; }
-      prog.pos=0; prog.perm=[];
-    }
-    prog.lastDate=t;
-    set=[];
-    for(let i=0;i<n;i++) if(i%totalDays===prog.dayIndex) set.push(i);
-  }else{
-    mode='free';
-    totalDays=0;
-    set=Array.from({length:n},(_,i)=>i);
-  }
-  prog.mode=mode;
+  // 继续学习和直接学习都采用全量单词表(全局索引),学习计划仅作每日目标提示,不影响实际队列和pos
+  totalDays=cfg.planDays>0?cfg.planDays:0;
+  const set=Array.from({length:n},(_,i)=>i);
+  prog.mode='free';
   dayLength=set.length;
-  // 顺序
-  if(cfg.order==='random'){
-    if(!prog.perm || prog.perm.length!==dayLength || prog.permMode!==(mode+':'+prog.dayIndex+':'+cfg.planDays)){
+  // 顺序(仅影响继续学习模式的展示顺序,直接学习模式固定A-Z)
+  if(cfg.order==='random' && !directMode && !reviewMode && !jumpMode){
+    if(!prog.perm || prog.perm.length!==dayLength){
       prog.perm=shuffle(set.slice());
-      prog.permMode=mode+':'+prog.dayIndex+':'+cfg.planDays;
     }
     queue=prog.perm.slice();
   }else{
@@ -1092,7 +1077,7 @@ function startFromWordList(){
 function jumpToWord(idx){
   // 临时查看模式：保存原状态(继续学习/直接学习/复习),完全不影响原有进度
   if(!jumpMode){
-    prog.jumpSaved={directMode:directMode,reviewMode:reviewMode,pos:prog.pos,directPos:prog.directPos||0};
+    prog.jumpSaved={directMode:directMode,reviewMode:reviewMode,pos:prog.pos,directPos:prog.directPos||0,studyPos:prog.studyPos};
   }
   jumpMode=true;
   directMode=false;
