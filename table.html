@@ -43,6 +43,14 @@
   .actions button{flex:1;height:52px;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .12s;}
   .actions button:active{transform:scale(.96);}
   .btn-diff{background:#fff7ed;color:#ea580c;border:1.5px solid #fdba74!important;}
+  .markbtns{display:flex;gap:6px;flex:1;flex-wrap:wrap;}
+  .markbtns button{flex:1;min-width:60px;height:44px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;padding:0 4px;transition:all .15s;}
+  .markbtns button:active{transform:scale(.95);}
+  .markbtns button.active{background:#f0fdfa;border-color:#14b8a6;color:#0f766e;}
+  .markbtns button[data-tag=star].active{background:#fefce8;border-color:#eab308;color:#a16207;}
+  .markbtns button[data-tag=new].active{background:#f0f9ff;border-color:#3b82f6;color:#1d4ed8;}
+  .markbtns button[data-tag=confuse].active{background:#fef2f2;border-color:#ef4444;color:#b91c1c;}
+  .markbtns button[data-tag=master].active{background:#f0fdf4;border-color:#22c55e;color:#15803d;}
   .btn-next{background:linear-gradient(90deg,#14b8a6,#0ea5e9);color:#fff;box-shadow:0 6px 18px rgba(14,165,233,.28);}
   .stats{display:flex;justify-content:space-around;padding:10px 6px 14px;background:#f8fafc;border-top:1px solid #eef2f7;font-size:12px;color:#64748b;}
   .stats div{text-align:center;}
@@ -107,6 +115,27 @@
   .wl-empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px;}
   .wl-count{font-size:12px;color:#94a3b8;padding:6px 14px;flex-shrink:0;}
   .review-badge{background:#fff7ed;color:#ea580c;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;margin-left:8px;}
+  /* 标记选择面板 */
+  .tag-picker{position:absolute;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:25;}
+  .tag-picker.show{display:flex;}
+  .tag-picker .sheet{background:#fff;width:88%;max-width:360px;border-radius:18px;padding:20px;}
+  .tag-picker h3{font-size:17px;margin-bottom:14px;color:#0f172a;}
+  .tag-picker .tag-list{display:flex;flex-direction:column;gap:8px;}
+  .tag-picker .tag-opt{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;cursor:pointer;font-size:15px;}
+  .tag-picker .tag-opt.active{border-color:#14b8a6;background:#f0fdfa;}
+  .tag-picker .tag-opt .dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+  .tag-picker .tag-opt .name{flex:1;}
+  .tag-picker .tag-opt .check{color:#14b8a6;font-weight:700;}
+  .tag-picker .rowbtns{display:flex;gap:10px;margin-top:16px;}
+  .tag-picker .rowbtns button{flex:1;height:44px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;}
+  .tag-picker .btn-confirm{background:linear-gradient(90deg,#14b8a6,#0ea5e9);color:#fff;}
+  .tag-picker .btn-cancel{background:#f1f5f9;color:#475569;}
+  /* 词表标记标签 */
+  .wl-tags{display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0;}
+  .wl-tag{font-size:10px;padding:2px 6px;border-radius:6px;color:#fff;font-weight:600;}
+  /* 卡片标记显示 */
+  .card-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:10px;min-height:20px;}
+  .card-tag{font-size:11px;padding:3px 10px;border-radius:99px;color:#fff;font-weight:600;}
 </style>
 </head>
 <body>
@@ -131,10 +160,16 @@
       <div class="ipa" id="ipa"></div>
       <button class="speaker" id="speakBtn" onclick="playSound(event)">🔊</button>
       <div class="meaning hidden" id="meaning"><span class="hint">轻点显示释义</span></div>
+      <div class="card-tags" id="cardTags"></div>
     </div>
-    <div class="hintbar"><span>👈 滑动/箭头 = 已学会</span><span>点击卡片看释义</span></div>
+    <div class="hintbar"><span>👈左滑=下一个  👉右滑=上一个</span><span>点击卡片看释义</span></div>
     <div class="actions">
-      <button class="btn-diff" onclick="markDifficult()">⚠️ 标记难点</button>
+      <div class="markbtns" id="markBtns">
+  <button class="btn-mark" data-tag="star" onclick="toggleTag('star')">⭐重点</button>
+  <button class="btn-mark" data-tag="new" onclick="toggleTag('new')">❓生词</button>
+  <button class="btn-mark" data-tag="confuse" onclick="toggleTag('confuse')">🔴易混</button>
+  <button class="btn-mark" data-tag="master" onclick="toggleTag('master')">💪已掌握</button>
+</div>
       <button class="btn-next" onclick="next(true)">下一个 ✓</button>
     </div>
   </div>
@@ -193,6 +228,18 @@
     </div>
   </div>
 
+  <!-- 标记选择面板 -->
+  <div class="tag-picker" id="tagPicker">
+    <div class="sheet">
+      <h3 id="tagPickerTitle">标记单词</h3>
+      <div class="tag-list" id="tagList"></div>
+      <div class="rowbtns">
+        <button class="btn-cancel" onclick="closeTagPicker()">取消</button>
+        <button class="btn-confirm" onclick="confirmTags()">确认</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
   <!-- 底部导航 -->
   <nav class="bottomnav" id="bottomNav">
@@ -221,7 +268,7 @@ const DATA=[["a/an","[(ə; eɪ)]","一(个)；任何一(个)；每一(个)"],["a
 
 // ================= 配置与状态 =================
 const LS_CFG='vocab_cfg2', LS_PROG='vocab_prog2';
-const defaultCfg={planDays:0,roundSize:20,order:'az',accent:'us'};
+const defaultCfg={planDays:0,roundSize:20,order:'az',accent:'us',tags:[{id:'hard',name:'难点',color:'#dc2626'},{id:'error',name:'易错',color:'#ea580c'},{id:'important',name:'重要',color:'#ca8a04'},{id:'mastered',name:'已掌握',color:'#16a34a'}]};
 let cfg=load(LS_CFG,Object.assign({},defaultCfg));
 let prog=load(LS_PROG,null);
 
@@ -240,7 +287,21 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ================= 队列构建 =================
 function initProg(){
   if(!prog){
-    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],perm:[],lastDate:'',finished:false};
+    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},perm:[],lastDate:'',finished:false};
+  }
+  if(!prog.tags) prog.tags={};
+  // 迁移旧difficult数据到tags.hard
+  if(prog.difficult && prog.difficult.length>0){
+    var migrated=false;
+    for(var mi=0;mi<prog.difficult.length;mi++){
+      var wi=prog.difficult[mi];
+      if(!prog.tags[wi]||prog.tags[wi].indexOf('hard')<0){
+        if(!prog.tags[wi]) prog.tags[wi]=[];
+        if(prog.tags[wi].indexOf('hard')<0) prog.tags[wi].push('hard');
+        migrated=true;
+      }
+    }
+    if(migrated) save(LS_PROG,prog);
   }
 }
 function buildQueue(){
@@ -253,8 +314,9 @@ function buildQueue(){
     totalDays=cfg.planDays;
     const t=todayStr();
     if(prog.lastDate && prog.lastDate!==t){
-      // 新的一天：如果上一天已完成则推进，否则保持在原天（避免进度丢失）
-      if(prog.pos>=dayLengthOf(prog.dayIndex)){ if(prog.dayIndex<totalDays-1) prog.dayIndex++; }
+      // 新的一天：如果上一天已完成则推进到下一天，重置pos
+      if(prog.pos>=dayLengthOf(prog.dayIndex) && prog.dayIndex<totalDays-1){ prog.dayIndex++; }
+      prog.pos=0; prog.perm=[];
     }
     prog.lastDate=t;
     set=[];
@@ -293,7 +355,7 @@ function currentWordIndex(){
   return queue[Math.min(prog.pos,queue.length-1)];
 }
 function render(){
-  buildQueue();
+  if(!queue || queue.length===0) buildQueue();
   const doneAll = queue.length>0 && prog.pos>=queue.length;
   if(doneAll){ showDone(); return; }
   hideDone();
@@ -306,6 +368,7 @@ function render(){
   // 释义重置为隐藏
   const m=document.getElementById('meaning');
   m.classList.add('hidden'); m.innerHTML='<span class="hint">轻点显示释义</span>'; m.dataset.def=esc(w[2]||'');
+  renderCardTags();
   // 计划信息
   const planText=document.getElementById('planText');
   if(cfg.planDays>0){
@@ -347,10 +410,79 @@ function next(learned){
   if(learned!==false) learned=true;
   const wi=currentWordIndex();
   if(learned && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
-  prog.pos++;
+  if(prog.pos<queue.length-1){ prog.pos++; }
   save(LS_PROG,prog);
   render();
 }
+function prev(){
+  if(!queue.length) return;
+  if(prog.pos>0){ prog.pos--; }
+  save(LS_PROG,prog);
+  render();
+}
+// ================= 自定义标记 =================
+let _tagPickerIdx=-1;
+function getTagCfg(){ return (cfg&&cfg.tags)?cfg.tags:[{id:'hard',name:'难点',color:'#dc2626'}]; }
+function getWordTags(idx){
+  if(!prog.tags) prog.tags={};
+  return prog.tags[idx]||[];
+}
+function openTagPicker(){
+  if(!queue.length) return;
+  _tagPickerIdx=currentWordIndex();
+  document.getElementById('tagPickerTitle').textContent='标记: '+DATA[_tagPickerIdx][0];
+  renderTagList();
+  document.getElementById('tagPicker').classList.add('show');
+}
+function renderTagList(){
+  const tags=getTagCfg();
+  const cur=getWordTags(_tagPickerIdx);
+  const box=document.getElementById('tagList');
+  box.innerHTML=tags.map(function(t){
+    const active=cur.indexOf(t.id)>=0;
+    return '<div class="tag-opt'+(active?' active':'')+'" data-id="'+t.id+'" onclick="toggleTagOpt(this)">'+
+      '<span class="dot" style="background:'+t.color+'"></span>'+
+      '<span class="name">'+t.name+'</span>'+
+      (active?'<span class="check">✓</span>':'')+
+    '</div>';
+  }).join('');
+}
+function toggleTagOpt(el){
+  el.classList.toggle('active');
+  const check=el.querySelector('.check');
+  if(el.classList.contains('active')){
+    if(!check){const s=document.createElement('span');s.className='check';s.textContent='✓';el.appendChild(s);}
+  }else if(check){check.remove();}
+}
+function confirmTags(){
+  const tags=getTagCfg();
+  const selected=[];
+  document.querySelectorAll('#tagList .tag-opt.active').forEach(function(el){selected.push(el.dataset.id);});
+  if(!prog.tags) prog.tags={};
+  prog.tags[_tagPickerIdx]=selected;
+  // 兼容旧difficult: 有hard标记则加入difficult
+  const wi=_tagPickerIdx;
+  if(selected.indexOf('hard')>=0 && prog.difficult.indexOf(wi)<0) prog.difficult.push(wi);
+  if(selected.indexOf('hard')<0){ prog.difficult=prog.difficult.filter(function(x){return x!==wi;}); }
+  if(prog.studied.indexOf(wi)<0) prog.studied.push(wi);
+  save(LS_PROG,prog);
+  closeTagPicker();
+  render();
+  toast('标记已保存');
+}
+function closeTagPicker(){ document.getElementById('tagPicker').classList.remove('show'); }
+function renderCardTags(){
+  const idx=currentWordIndex();
+  const tags=getWordTags(idx);
+  const cfg=getTagCfg();
+  const box=document.getElementById('cardTags');
+  if(!box) return;
+  box.innerHTML=tags.map(function(tid){
+    const t=cfg.find(function(x){return x.id===tid;});
+    return t?'<span class="card-tag" style="background:'+t.color+'">'+t.name+'</span>':'';
+  }).join('');
+}
+
 function markDifficult(){
   if(!queue.length) return;
   const wi=currentWordIndex();
@@ -419,16 +551,21 @@ function goHome(){
   card.addEventListener('touchend',function(e){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
-    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){ next(true); }
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){
+      if(dx<0){ next(true); }      // 左滑 → 下一个
+      else{ prev(); }                // 右滑 → 上一个
+    }
   },false);
   // 键盘
   document.addEventListener('keydown',function(e){
-    if(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key===' '){e.preventDefault();next(true);}
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next(true);}
+    else if(e.key==='ArrowLeft'){e.preventDefault();prev();}
   });
 })();
 
 // ================= 设置 =================
 function openSettings(){
+  if(!queue || queue.length===0) buildQueue();
   document.getElementById('inDays').value=cfg.planDays||0;
   document.getElementById('inRound').value=cfg.roundSize||20;
   document.querySelectorAll('input[name=order]').forEach(r=>r.checked=(r.value===cfg.order));
@@ -557,37 +694,48 @@ function renderWordList(){
     return;
   }
   const show=items.slice(0,500);
+  const tagCfg=getTagCfg();
   list.innerHTML=header+show.map(function(it){
     var wsafe=esc(it.w).replace(/'/g,"&#39;");
+    var wtags=getWordTags(it.i);
+    var tagHtml=wtags.map(function(tid){
+      var t=tagCfg.find(function(x){return x.id===tid;});
+      return t?'<span class="wl-tag" style="background:'+t.color+'">'+t.name+'</span>':'';
+    }).join('');
     return '<div class="wl-item">'+
     '<span class="w" onclick="playWord(\''+wsafe+'\')" style="cursor:pointer">'+esc(it.w)+' 🔊</span>'+
     '<span class="p">'+esc(it.ipa)+'</span>'+
     '<span class="m">'+esc(it.mean)+'</span>'+
+    (tagHtml?'<span class="wl-tags">'+tagHtml+'</span>':'')+
     '<span onclick="jumpToWord('+it.i+')" style="color:#0ea5e9;font-size:12px;cursor:pointer;flex-shrink:0;padding:3px 10px;border:1px solid #7dd3fc;border-radius:8px;white-space:nowrap">学习</span>'+
-    (it.diff?'<span class="diff">⚠️</span>':'')+
     '</div>';
   }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
 }
 function jumpToWord(idx){
-  // 从词表点击跳转到学习该词
+  // 从词表点击跳转到学习该词：构建正常队列并定位到该词位置
   reviewMode=false;
-  queue=[idx];
-  dayLength=1;
-  prog.pos=0;
   document.getElementById('wlPanel').classList.remove('show');
   setActiveNav('navStudy');
+  buildQueue();
+  // 在队列中找到该词的位置
+  var pos=queue.indexOf(idx);
+  if(pos>=0){ prog.pos=pos; }
+  save(LS_PROG,prog);
   render();
+  toast('已定位到该单词');
 }
 // ================= 哈希路由 =================
 function handleHash(){
   const h=location.hash.replace('#','').toLowerCase();
   if(h==='wordlist'){ showWordList(); }
   else if(h==='difficult'){ showDifficult(); }
-  else if(h==='settings'){ openSettings(); }
+  else if(h==='settings'){ if(!queue.length) buildQueue(); render(); openSettings(); }
   else { showStudy(); }
 }
 window.addEventListener('hashchange',handleHash);
 
+// 初始化队列（确保 render 时有数据）
+if(!queue || queue.length===0) buildQueue();
 handleHash();
 </script>
 </body>
