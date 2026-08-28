@@ -77,6 +77,33 @@
   .done button{height:50px;border:none;border-radius:14px;font-size:15px;font-weight:700;padding:0 26px;cursor:pointer;margin:6px;}
   .toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);background:rgba(15,23,42,.85);color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:30;white-space:nowrap;}
   .toast.show{opacity:1;}
+  /* 底部导航 */
+  .bottomnav{display:flex;background:#fff;border-top:1px solid #eef2f7;padding:6px 0 calc(6px + env(safe-area-inset-bottom));flex-shrink:0;}
+  .bottomnav button{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;color:#94a3b8;font-size:11px;font-family:inherit;}
+  .bottomnav button .ic{font-size:20px;}
+  .bottomnav button.active{color:#0f766e;font-weight:700;}
+  .bottomnav button.active .ic{transform:scale(1.1);}
+  /* 词表面板 */
+  .wl-panel{position:absolute;inset:0;background:#fff;z-index:20;display:none;flex-direction:column;}
+  .wl-panel.show{display:flex;}
+  .wl-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #eef2f7;flex-shrink:0;}
+  .wl-header button{background:#f1f5f9;border:none;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer;flex-shrink:0;}
+  .wl-header .title{font-size:16px;font-weight:700;color:#0f172a;flex:1;}
+  .wl-search{padding:10px 14px;flex-shrink:0;}
+  .wl-search input{width:100%;height:42px;border:1.5px solid #e2e8f0;border-radius:12px;padding:0 14px;font-size:15px;}
+  .wl-search input:focus{outline:none;border-color:#14b8a6;}
+  .wl-letters{display:flex;flex-wrap:wrap;gap:4px;padding:0 14px 8px;flex-shrink:0;}
+  .wl-letters span{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:6px;background:#f1f5f9;color:#64748b;cursor:pointer;font-weight:600;}
+  .wl-letters span.active{background:#14b8a6;color:#fff;}
+  .wl-list{flex:1;overflow-y:auto;padding:4px 14px 20px;}
+  .wl-item{display:flex;align-items:baseline;gap:10px;padding:10px 4px;border-bottom:1px solid #f1f5f9;}
+  .wl-item .w{font-size:16px;font-weight:700;color:#0f172a;min-width:110px;}
+  .wl-item .p{font-size:12px;color:#94a3b8;min-width:70px;}
+  .wl-item .m{font-size:13px;color:#64748b;flex:1;}
+  .wl-item .diff{color:#ea580c;font-size:14px;flex-shrink:0;}
+  .wl-empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px;}
+  .wl-count{font-size:12px;color:#94a3b8;padding:6px 14px;flex-shrink:0;}
+  .review-badge{background:#fff7ed;color:#ea580c;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;margin-left:8px;}
 </style>
 </head>
 <body>
@@ -164,6 +191,26 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <!-- 底部导航 -->
+  <nav class="bottomnav" id="bottomNav">
+    <button onclick="goHome()" class="active" id="navHome"><span class="ic">🏠</span>首页</button>
+    <button onclick="showStudy()" id="navStudy"><span class="ic">📖</span>学习</button>
+    <button onclick="showWordList()" id="navList"><span class="ic">📚</span>词表</button>
+    <button onclick="showDifficult()" id="navDiff"><span class="ic">⚠️</span>难记</button>
+  </nav>
+
+  <!-- 总词表面板 -->
+  <div class="wl-panel" id="wlPanel">
+    <div class="wl-header">
+      <button onclick="closeWordList()">←</button>
+      <div class="title">总单词表 <span id="wlModeLabel"></span></div>
+    </div>
+    <div class="wl-search"><input type="text" id="wlSearch" placeholder="搜索单词或释义..." oninput="renderWordList()"></div>
+    <div class="wl-letters" id="wlLetters"></div>
+    <div class="wl-count" id="wlCount"></div>
+    <div class="wl-list" id="wlList"></div>
+  </div>
+
 </div>
 
 <script>
@@ -346,8 +393,8 @@ function continueNext(){
   save(LS_PROG,prog); render();
 }
 function goHome(){
-  if(cfg.planDays>0){ /* 保持今天，回到开头复习 */ prog.pos=0; }
-  save(LS_PROG,prog); render();
+  save(LS_PROG,prog);
+  window.location.href='index.html';
 }
 
 // ================= 滑动 =================
@@ -401,7 +448,113 @@ function resetProgress(){
 }
 
 // ================= 启动 =================
-render();
+
+// ================= 视图切换 =================
+let reviewMode=false;  // 难记库复习模式
+let wlFilter='all';    // 词表过滤: all / difficult / 字母
+function setActiveNav(id){
+  document.querySelectorAll('#bottomNav button').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+function showStudy(){
+  reviewMode=false;
+  document.getElementById('wlPanel').classList.remove('show');
+  document.getElementById('donePage').classList.remove('show');
+  setActiveNav('navStudy');
+  buildQueue(); render();
+}
+function showWordList(){
+  wlFilter='all';
+  document.getElementById('wlModeLabel').textContent='';
+  document.getElementById('wlSearch').value='';
+  document.getElementById('wlPanel').classList.add('show');
+  setActiveNav('navList');
+  buildLetters(); renderWordList();
+}
+function showDifficult(){
+  const diffs=prog?prog.difficult:[];
+  if(!diffs||diffs.length===0){
+    toast('还没有标记难记词，学习时点「标记难点」即可加入');
+    return;
+  }
+  // 进入难记库复习模式
+  reviewMode=true;
+  queue=diffs.slice();
+  dayLength=queue.length;
+  prog.pos=0;
+  document.getElementById('wlPanel').classList.remove('show');
+  document.getElementById('donePage').classList.remove('show');
+  setActiveNav('navDiff');
+  render();
+  toast('难记库复习模式 · 共 '+queue.length+' 词');
+}
+function closeWordList(){
+  document.getElementById('wlPanel').classList.remove('show');
+  setActiveNav(reviewMode?'navDiff':'navStudy');
+}
+// ================= 总词表 =================
+function buildLetters(){
+  const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const box=document.getElementById('wlLetters');
+  box.innerHTML='<span class="active" data-l="all" onclick="filterLetter('all')">全部</span>'+
+    letters.map(l=>'<span data-l="'+l+'" onclick="filterLetter(''+l+'')">'+l+'</span>').join('');
+}
+function filterLetter(l){
+  wlFilter=l;
+  document.querySelectorAll('#wlLetters span').forEach(s=>{
+    s.classList.toggle('active', s.dataset.l===l);
+  });
+  renderWordList();
+}
+function renderWordList(){
+  const q=document.getElementById('wlSearch').value.trim().toLowerCase();
+  const list=document.getElementById('wlList');
+  const diffSet=new Set(prog?prog.difficult:[]);
+  let items=[];
+  for(let i=0;i<DATA.length;i++){
+    const w=DATA[i][0], ipa=DATA[i][1], mean=DATA[i][2];
+    if(wlFilter!=='all' && w[0].toUpperCase()!==wlFilter) continue;
+    if(q && w.toLowerCase().indexOf(q)<0 && mean.toLowerCase().indexOf(q)<0) continue;
+    items.push({i,w,ipa,mean,diff:diffSet.has(i)});
+  }
+  document.getElementById('wlCount').textContent='共 '+items.length+' 词';
+  if(items.length===0){
+    list.innerHTML='<div class="wl-empty">没有找到匹配的单词</div>';
+    return;
+  }
+  // 限制渲染数量(性能)
+  const show=items.slice(0,500);
+  list.innerHTML=show.map(it=>
+    '<div class="wl-item" onclick="jumpToWord('+it.i+')">'+
+    '<span class="w">'+esc(it.w)+'</span>'+
+    '<span class="p">'+esc(it.ipa)+'</span>'+
+    '<span class="m">'+esc(it.mean)+'</span>'+
+    (it.diff?'<span class="diff">⚠️</span>':'')+
+    '</div>'
+  ).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
+}
+function jumpToWord(idx){
+  // 从词表点击跳转到学习该词
+  reviewMode=false;
+  queue=[idx];
+  dayLength=1;
+  prog.pos=0;
+  document.getElementById('wlPanel').classList.remove('show');
+  setActiveNav('navStudy');
+  render();
+}
+// ================= 哈希路由 =================
+function handleHash(){
+  const h=location.hash.replace('#','').toLowerCase();
+  if(h==='wordlist'){ showWordList(); }
+  else if(h==='difficult'){ showDifficult(); }
+  else if(h==='settings'){ openSettings(); }
+  else { showStudy(); }
+}
+window.addEventListener('hashchange',handleHash);
+
+handleHash();
 </script>
 </body>
 </html>
