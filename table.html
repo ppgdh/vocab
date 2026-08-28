@@ -252,10 +252,7 @@
       <button onclick="closeWordList()">←</button>
       <div class="title">总单词表 <span id="wlModeLabel"></span></div>
     </div>
-    <div class="wl-direct-study" id="wlDirectStudy" style="text-align:center;padding:8px 0">
-      <button onclick="startFromWordList()" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;height:40px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">📖 直接学习（从词首开始）</button>
-    </div>
-    <div class="wl-search"><input type="text" id="wlSearch" placeholder="搜索单词或释义..." oninput="renderWordList()"></div>
+<div class="wl-search"><input type="text" id="wlSearch" placeholder="搜索单词或释义..." oninput="renderWordList()"></div>
     <div class="wl-letters" id="wlLetters"></div>
     <div class="wl-count" id="wlCount"></div>
     <div class="wl-list" id="wlList"></div>
@@ -671,7 +668,6 @@ function showWordList(){
   document.getElementById('wlPanel').classList.add('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navList');
-  document.getElementById('wlDirectStudy').style.display='';
   buildLetters(); renderWordList();
 }
 function setTagFilter(id){
@@ -701,7 +697,6 @@ function showDifficult(){
   document.getElementById('wlSearch').value='';
   document.getElementById('wlPanel').classList.add('show');
   setActiveNav('navDiff');
-  document.getElementById('wlDirectStudy').style.display='none';
   buildLetters(); renderWordList();
 }
 function startDifficultReview(){
@@ -854,6 +849,7 @@ function handleHash(){
   if(h==='wordlist'){ showWordList(); }
   else if(h==='difficult'){ showDifficult(); }
   else if(h==='settings'){ if(!queue.length) buildQueue(); render(); openSettings(); }
+  else if(h==='direct'){ startFromWordList(); }
   else { showStudy(); }
 }
 window.addEventListener('hashchange',handleHash);
