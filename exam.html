@@ -301,8 +301,8 @@ function parseChoiceQuestions(content, type){
       let flat = rest.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       
       // 找到第一个选项的位置
-      let optStart = flat.search(/\s+[A-D]\.\s/);
-      if(optStart < 0) optStart = flat.search(/[A-D]\.\s/);
+      let optStart = flat.search(/\s+[A-D]\.[a-zA-Z]/);
+      if(optStart < 0) optStart = flat.search(/[A-D]\.[a-zA-Z]/);
       
       let qTextPart = optStart >= 0 ? flat.substring(0, optStart) : flat;
       let optPart = optStart >= 0 ? flat.substring(optStart) : '';
