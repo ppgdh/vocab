@@ -211,20 +211,22 @@ function renderExam(){
 
 function cleanWatermark(text){
   if(!text) return '';
-  // 移除"13000#英语(专升本)试题第X页(共X页)"格式
+  // 移除"13000#英语(专升本)试题第4页(共8页)"
   text = text.replace(/13000#?英语\s*[（(]\s*专升本\s*[）)]\s*试题第?\s*\d*\s*页?\s*[（(]?\s*共?\s*\d*\s*页?\s*[）)]?/g, '');
   // 移除"英语（专升本）· 课程代码 13000 第X页/共X页"
-  text = text.replace(/英语\s*[（(]\s*专升本\s*[）)]\s*·?\s*课程代码\s*13000[^\n]*/g, '');
+  text = text.replace(/英语\s*[（(]\s*专升本\s*[）)]\s*·?\s*课程代码\s*:?\s*\d+[^\n]*/g, '');
+  // 移除"课程代码:00015)"或"课程代码 13000)"
+  text = text.replace(/课程代码\s*:?\s*\d+\s*[）)]?/g, '');
   // 移除"13 0 0 0 英 语 ( 专..."
   text = text.replace(/13\s*0\s*0\s*0\s*英\s*语[^\n]*/g, '');
-  // 移除页码（各种格式）
+  // 移除页码
   text = text.replace(/第\s*\d+\s*页\s*[（(]?\s*共\s*\d+\s*页\s*[）)]?/g, '');
   text = text.replace(/第\s*\d+\s*页\s*\/\s*共\s*\d+\s*页/g, '');
   text = text.replace(/[（(]\s*共\s*\d+\s*页\s*[）)]/g, '');
   text = text.replace(/第\s*\d+\s*页/g, '');
-  // 移除残留的"共X页)"和"13000)"
   text = text.replace(/共\s*\d+\s*页\s*[）)]?/g, '');
-  text = text.replace(/\b13000\b[）)]?/g, '');
+  // 移除孤立的"13000)"或"13000"
+  text = text.replace(/\b13000\b\s*[）)]?/g, '');
   // 移除"第X部分：XXX"
   text = text.replace(/第\s*[一二三四五六七八九十]+\s*部\s*分\s*[：:][^\n]*/g, '');
   // 移除"曹胖自考英语二"
@@ -234,10 +236,12 @@ function cleanWatermark(text){
   text = text.replace(/#[Xx]#?/g, '');
   text = text.replace(/\*[#=*]+\*/g, '');
   text = text.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
-  // 移除单字水印行
+  // 移除末尾单字水印（如"湖 太 院 锡"）
+  text = text.replace(/(?:\s+[\u4e00-\u9fa5]){1,4}\s*$/g, '');
+  // 移除独立单字水印行
   text = text.replace(/(?:^|\n)\s*[\u4e00-\u9fa5]\s*$/gm, '');
-  // 移除末尾多余标点
-  text = text.replace(/[\s\.。,，、;；：:）)]+$/g, '');
+  // 移除末尾多余标点和括号
+  text = text.replace(/[\s\.。,，、;；：:）)）]+$/g, '');
   return text.trim();
 }
 
@@ -552,6 +556,7 @@ function parseWordForm(content, startNum, endNum){
     });
   }
   
+  passage = cleanWatermark(passage);
   return {passage, questions};
 }
 
