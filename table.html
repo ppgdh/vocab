@@ -744,8 +744,8 @@ function goHome(){
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){
-      if(dx<0){ prev(); }           // 左滑 → 上一个
-      else{ next(true); }            // 右滑 → 下一个
+      if(dx<0){ next(true); }      // 左滑 → 下一个
+      else{ prev(); }                // 右滑 → 上一个
     }
   },false);
   // 键盘
