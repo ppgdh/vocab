@@ -503,6 +503,7 @@ function parseClozeSection(content, startNum, endNum){
 }
 
 function parseWordCloze(content, startNum, endNum){
+  content = cleanWatermark(content);
   let questions = [];
   
   // 提取单词选项（A-L）
@@ -544,6 +545,7 @@ function parseWordCloze(content, startNum, endNum){
 }
 
 function parseWordForm(content, startNum, endNum){
+  content = cleanWatermark(content);
   let questions = [];
   
   let passage = content;
