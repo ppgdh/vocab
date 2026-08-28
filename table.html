@@ -168,6 +168,7 @@
   <button class="btn-mark" onclick="toggleHardTag()" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none">🏷️ 标记难点</button>
 </div>
       <button class="btn-next" onclick="next(true)">下一个 ✓</button>
+      <button class="btn-reset" onclick="resetStudy()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border:none;height:40px;padding:0 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0">🔄 重学</button>
     </div>
   </div>
 
@@ -649,7 +650,8 @@ function resetProgress(){
 
 // ================= 视图切换 =================
 let reviewMode=false;
-let directMode=false;  // 难点库模式
+let directMode=false;
+let savedStudyPos=0;  // 难点库模式
 let wlFilter='all';
 let wlTagFilter='all';    // 词表过滤: all / difficult / 字母
 function setActiveNav(id){
@@ -658,6 +660,7 @@ function setActiveNav(id){
   if(el) el.classList.add('active');
 }
 function showStudy(){
+  if(reviewMode){ prog.pos=savedStudyPos; }  // 从复习模式回来,恢复原进度
   reviewMode=false;
   directMode=false;
   document.getElementById('wlPanel').classList.remove('show');
@@ -721,6 +724,7 @@ function startDifficultReview(){
   }
   if(reviewList.length===0){ toast('当前分类没有难点词'); return; }
   reviewMode=true;
+  savedStudyPos=prog.pos;  // 保存原学习进度
   queue=reviewList.slice();
   dayLength=queue.length;
   prog.pos=0;
@@ -814,6 +818,17 @@ function renderWordList(){
     '</div>';
   }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
 }
+// 重新学习: 重置当前模式进度
+function resetStudy(){
+  if(reviewMode){ prog.pos=0; }
+  else if(directMode){ prog.directPos=0; prog.pos=0; }
+  else{ prog.pos=0; prog.perm=[]; }
+  save(LS_PROG,prog);
+  render();
+  updateMarkBtn();
+  toast('已重置,从头开始学习');
+}
+
 function startFromWordList(){
   reviewMode=false;
   directMode=true;
