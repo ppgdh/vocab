@@ -350,64 +350,47 @@ function parseChoiceQuestions(content, type){
 function parseMatchingSection(content){
   let questions = [];
   
-  // 找Task 1和Task 2
   let task1Match = content.match(/Task\s*1([\s\S]*?)(?=Task\s*2|$)/i);
   let task2Match = content.match(/Task\s*2([\s\S]*?)$/i);
   
-  // 提取Task 1的题目和选项
   if(task1Match){
     let t1 = task1Match[1];
-    // 题目: 16. Paragraph① 等
-    let qNums = [16,17,18,19,20];
-    // 选项A-F: 在题目之后
-    let opts1 = extractLetterOptions(t1, 6);
-    
-    qNums.forEach((num, idx) => {
-      let paraLabel = String.fromCharCode(9312 + idx); // ①②③④⑤ but ① is 9312
-      // 尝试匹配 "16. Paragraph①" 或 "16. Paragraph O:" 等
-      let re = new RegExp(num + '[\\.\\)]\\s*Paragraph[^\\n]*', 'i');
-      let m = t1.match(re);
-      let text = m ? m[0] : ('第' + num + '题：选择正确的小标题');
-      // 清理文本，不包含选项
-      text = text.replace(/[A-F]\..*$/, '').trim();
-      questions.push({num: num, text: text, options: opts1});
-    });
+    let opts1 = extractOptionsFromText(t1, 6);
+    for(let i = 0; i < 5; i++){
+      questions.push({
+        num: 16 + i,
+        text: '为第' + (i+1) + '段选择正确的小标题',
+        options: opts1
+      });
+    }
   }
   
-  // 提取Task 2的题目和选项
   if(task2Match){
     let t2 = task2Match[1];
-    let opts2 = extractLetterOptions(t2, 6);
-    
+    let opts2 = extractOptionsFromText(t2, 6);
     for(let num = 21; num <= 25; num++){
       let re = new RegExp(num + '[\\.\\)]\\s*([^\\n]+)');
       let m = t2.match(re);
-      let text = m ? m[1].trim() : ('第' + num + '题：补全句子');
-      // 清理文本，去掉选项部分
-      text = text.replace(/\s+[A-F]\..*$/, '').trim();
+      let text = m ? m[1].trim() : ('第' + num + '题');
+      text = text.replace(/[A-F]\..*$/, '').trim();
       questions.push({num: num, text: text, options: opts2});
     }
   }
   
-  // 短文是文章部分（在题目之前）
   let passage = '';
-  let firstQ = content.search(/\d+[\.\)]\s*Paragraph/i);
-  if(firstQ < 0) firstQ = content.search(/Task\s*1/i);
+  let firstQ = content.search(/Task\s*1/i);
   if(firstQ > 0){
     passage = content.substring(0, firstQ).trim();
     passage = passage.replace(/^第[一二三四五六]部分[：:].*?\n/gm, '');
-    passage = passage.replace(/^阅读下面短文.*?\n/gm, '');
+    passage = passage.replace(/^\s*阅读下面短文.*?\n/gm, '');
   }
   
   return {passage, questions};
 }
 
-function extractLetterOptions(text, count){
-  // 提取A. B. C. ... 格式的选项
+function extractOptionsFromText(text, count){
   let options = [];
   let letters = 'ABCDEFGHIJKL'.substring(0, count).split('');
-  
-  // 把文本中的换行替换为空格
   let flat = text.replace(/\n/g, ' ').replace(/\s+/g, ' ');
   
   for(let i = 0; i < letters.length; i++){
@@ -415,16 +398,41 @@ function extractLetterOptions(text, count){
     let nextL = letters[i+1];
     let re;
     if(nextL){
-      re = new RegExp(L + '\\.\\s*(.+?)\\s+' + nextL + '\\.', 's');
+      re = new RegExp('(?:^|\\s)' + L + '\\.\\s*(.+?)\\s+' + nextL + '\\.', 's');
     } else {
-      re = new RegExp(L + '\\.\\s*(.+?)(?:\\s*$)', 's');
+      re = new RegExp('(?:^|\\s)' + L + '[\\.\\s]+(.+?)$', 's');
     }
     let m = flat.match(re);
     if(m){
-      options.push(L + '. ' + m[1].trim());
+      let val = m[1].trim();
+      // 移除可能混入的题目编号
+      val = val.replace(/\d+\.Paragraph[^A-F]*/gi, '').trim();
+      options.push(L + '. ' + val);
     }
   }
   
+  return options;
+}
+
+function extractWordOptions(text, count){
+  let options = [];
+  let flat = text.replace(/\n/g, ' ').replace(/\s+/g, ' ');
+  let re = /(?:^|\s)([A-L])[\.\s]+([a-zA-Z]+)/g;
+  let m;
+  let found = {};
+  while((m = re.exec(flat)) !== null){
+    let letter = m[1];
+    let word = m[2];
+    if(!found[letter] && word.length > 1){
+      found[letter] = word;
+    }
+  }
+  let letters = 'ABCDEFGHIJKL'.substring(0, count).split('');
+  for(let L of letters){
+    if(found[L]){
+      options.push(L + '. ' + found[L]);
+    }
+  }
   return options;
 }
 
@@ -432,7 +440,7 @@ function parseClozeSection(content, startNum, endNum){
   let questions = [];
   
   // 提取选项（A-F句子）
-  let opts = extractLetterOptions(content, 6);
+  let opts = extractOptionsFromText(content, 6);
   
   // 文章是选项之前的部分
   let passage = content;
@@ -456,7 +464,7 @@ function parseWordCloze(content, startNum, endNum){
   let questions = [];
   
   // 提取单词选项（A-L）
-  let opts = extractLetterOptions(content, 12);
+  let opts = extractWordOptions(content, 12);
   
   // 文章部分：去掉标题和选项列表
   let lines = content.split('\n');
