@@ -225,8 +225,12 @@ function cleanWatermark(text){
   text = text.replace(/[（(]\s*共\s*\d+\s*页\s*[）)]/g, '');
   text = text.replace(/第\s*\d+\s*页/g, '');
   text = text.replace(/共\s*\d+\s*页\s*[）)]?/g, '');
-  // 移除孤立的"13000)"或"13000"
+  // 移除孤立的"13000"或"t73:13000"等OCR垃圾
+  text = text.replace(/[a-z]?\d*:?13000\s*[）)]?/g, '');
   text = text.replace(/\b13000\b\s*[）)]?/g, '');
+  // 移除OCR时间戳垃圾如"2025 7ừ" "t73:"
+  text = text.replace(/\d{4}\s+\d+[ừửữự]?/g, '');
+  text = text.replace(/\bt\d+:/g, '');
   // 移除"第X部分：XXX"
   text = text.replace(/第\s*[一二三四五六七八九十]+\s*部\s*分\s*[：:][^\n]*/g, '');
   // 移除"曹胖自考英语二"
@@ -494,6 +498,7 @@ function parseClozeSection(content, startNum, endNum){
     });
   }
   
+  passage = cleanWatermark(passage);
   return {passage, questions};
 }
 
