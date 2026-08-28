@@ -1277,7 +1277,10 @@ function showWrongList(){
 function startWrongReview(){
   if(!prog.wrongWords||prog.wrongWords.length===0){ toast('错题库为空'); return; }
   reviewMode=true;
-  savedStudyPos=prog.pos;
+  directMode=false;
+  prog.directMode=false;
+  // 持久化保存原学习进度(和难点库复习一致),退出复习时showStudy会自动恢复
+  if(prog.savedStudyPos===undefined || prog.savedStudyPos===null) prog.savedStudyPos=prog.pos;
   queue=prog.wrongWords.slice();
   dayLength=queue.length;
   prog.pos=0;
