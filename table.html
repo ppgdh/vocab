@@ -424,10 +424,13 @@ function buildQueue(){
     prog.directPos=prog.jumpSaved.directPos;
     prog.directMode=prog.jumpSaved.directMode;
     delete prog.jumpSaved;
-    // 不删除studyPos/savedStudyPos:独立恢复机制,走if分支不会被else的studyPos检查覆盖
     jumpMode=false;
-    // jumpSaved包含完整状态,跳过后续恢复
+  }else if(prog.directMode){
+    // 直接学习模式: pos=directPos, 不恢复studyPos(防止继续学习进度覆盖直接学习进度)
+    directMode=true;
+    prog.pos=prog.directPos||0;
   }else{
+    // 继续学习模式
     if(prog.studyPos!==undefined){
       prog.pos=prog.studyPos;
       delete prog.studyPos;
@@ -1093,6 +1096,13 @@ function handleHash(){
   else if(h==='quiz'){ if(!queue.length) buildQueue(); render(); openQuizConfig(); }
   else if(h==='settings'){ if(!queue.length) buildQueue(); render(); openSettings(); }
   else if(h==='direct'){ startFromWordList(); }
+  else if(prog.directMode){
+    // 直接学习模式: 保持当前状态,不切回继续学习(防止studyPos覆盖直接学习进度)
+    directMode=true;
+    if(!queue || queue.length===0) buildQueue();
+    setActiveNav('navStudy');
+    render();
+  }
   else { showStudy(); }
 }
 window.addEventListener('hashchange',handleHash);
