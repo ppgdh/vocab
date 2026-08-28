@@ -831,9 +831,10 @@ function showStudy(){
     directMode=false;
     prog.directMode=false;
   }else{
+    // 用户主动点击继续学习: 总是切回继续学习模式
     reviewMode=false;
-    directMode=prog.directMode || false;
-    if(!directMode) prog.directMode=false;
+    directMode=false;
+    prog.directMode=false;
   }
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
@@ -1072,6 +1073,7 @@ function jumpToWord(idx){
   }
   jumpMode=true;
   directMode=false;
+  prog.directMode=false;
   reviewMode=false;
   if(!prog.difficult) prog.difficult=[];
   // 构建全量队列(按A-Z顺序),不受学习计划限制
