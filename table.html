@@ -529,8 +529,7 @@ function next(learned){
   if(!queue.length) return;
   if(learned!==false) learned=true;
   const wi=currentWordIndex();
-  // 仅在正常学习模式(继续/直接)下记录已学,复习和临时查看不影响已学列表
-  if(learned && !reviewMode && !jumpMode && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
+  if(learned && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
   if(prog.pos<queue.length-1){ prog.pos++; }
   if(directMode && !jumpMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
