@@ -2,40 +2,121 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>13000英语（专升本）背单词</title>
-<meta name="description" content="专升本英语 4500 核心单词：真人发音、学习标记、难记库、自测模式，PC与手机通用，打开即用。">
-<!-- 分享卡片信息（微信/QQ/钉钉等 IM 抓取） -->
-<meta property="og:title" content="13000英语（专升本）背单词">
-<meta property="og:description" content="专升本英语 4500 核心单词 · 真人发音 · 难记库/标记库/自测 · PC与手机通用">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://ppgdh.github.io/vocab/banner.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>专升本英语 4500 单词 · 学习导航</title>
+<meta name="description" content="专升本英语 4500 核心单词 · 卡片速记 · 总词表 · 难记库 · 学习计划 · 进度自动保存">
+<meta property="og:title" content="专升本英语 4500 单词 · 学习导航">
+<meta property="og:description" content="卡片式背单词：继续学习、总词表浏览、难记库复习、学习计划设置">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:linear-gradient(160deg,#eef7f1,#f7faf8);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-  .card{background:#fff;border-radius:20px;box-shadow:0 10px 40px rgba(15,23,42,.08);max-width:560px;width:100%;padding:26px;text-align:center;}
-  .banner{width:100%;border-radius:14px;overflow:hidden;margin-bottom:18px;}
-  .banner img{width:100%;display:block;}
-  h1{font-size:24px;font-weight:800;color:#065f46;line-height:1.4;}
-  .sub{font-size:14px;color:#6b7280;margin-top:10px;line-height:1.7;}
-  .feat{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;}
-  .feat span{font-size:12px;color:#047857;background:#d1fae5;border-radius:999px;padding:4px 12px;}
-  a.btn{display:inline-block;margin-top:22px;background:#0e9f6e;color:#fff;font-size:17px;font-weight:700;text-decoration:none;border-radius:12px;padding:14px 38px;box-shadow:0 6px 18px rgba(14,159,110,.28);}
-  a.btn:active{transform:scale(.98);}
-  .tip{font-size:12px;color:#9ca3af;margin-top:16px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:linear-gradient(160deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333;}
+.wrap{max-width:520px;margin:0 auto;padding:24px 18px 40px;min-height:100vh;display:flex;flex-direction:column;}
+.hero{text-align:center;padding:20px 0 28px;color:#fff;}
+.hero .icon{font-size:48px;margin-bottom:8px;}
+.hero h1{font-size:24px;font-weight:700;letter-spacing:1px;}
+.hero p{font-size:14px;opacity:.85;margin-top:6px;}
+.stats{background:rgba(255,255,255,.95);border-radius:16px;padding:18px 14px;margin-bottom:20px;box-shadow:0 8px 30px rgba(0,0,0,.12);display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat{text-align:center;padding:8px 4px;}
+.stat .num{font-size:28px;font-weight:800;color:#667eea;line-height:1.2;}
+.stat .label{font-size:12px;color:#888;margin-top:4px;}
+.stat.full{grid-column:1/-1;border-top:1px solid #eee;padding-top:12px;}
+.stat.full .num{font-size:22px;}
+.progress-bar{background:#eee;border-radius:8px;height:10px;margin-top:8px;overflow:hidden;}
+.progress-bar i{display:block;height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:8px;transition:width .4s;}
+.nav{display:flex;flex-direction:column;gap:12px;flex:1;}
+.nav-btn{display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px 18px;text-decoration:none;color:#333;box-shadow:0 4px 16px rgba(0,0,0,.08);transition:transform .15s,box-shadow .15s;border:none;width:100%;cursor:pointer;font-size:16px;font-family:inherit;text-align:left;}
+.nav-btn:active{transform:scale(.97);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.nav-btn .ico{font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;flex-shrink:0;}
+.nav-btn .txt{flex:1;}
+.nav-btn .txt .t{font-size:17px;font-weight:600;}
+.nav-btn .txt .d{font-size:12px;color:#999;margin-top:2px;}
+.nav-btn .arrow{color:#ccc;font-size:20px;}
+.nav-btn.primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;}
+.nav-btn.primary .txt .d{color:rgba(255,255,255,.75);}
+.nav-btn.primary .arrow{color:rgba(255,255,255,.5);}
+.ico-study{background:#eef2ff;}
+.ico-list{background:#f0fdf4;}
+.ico-diff{background:#fff7ed;}
+.ico-setting{background:#fef2f2;}
+.footer{text-align:center;color:rgba(255,255,255,.6);font-size:11px;margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);}
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="banner"><img src="banner.png" alt="13000英语（专升本）背单词"></div>
-    <h1>13000英语（专升本）背单词</h1>
-    <div class="sub">专升本英语 4500 核心单词 · 真人发音<br>PC、安卓、苹果手机都能用</div>
-    <div class="feat">
-      <span>真人发音</span><span>美音/英音切换</span><span>难记库</span><span>标记库</span><span>自测模式</span>
-    </div>
-    <br>
-    <a class="btn" href="https://ppgdh.github.io/vocab/table.html">立即进入学习表</a>
-    <div class="tip">点击上方按钮即可开始背单词</div>
+<div class="wrap">
+  <div class="hero">
+    <div class="icon">📚</div>
+    <h1>专升本英语 · 4500 词</h1>
+    <p>卡片速记 · 进度记忆 · 均衡学习计划</p>
   </div>
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="num" id="sTotal">4496</div><div class="label">总单词</div></div>
+    <div class="stat"><div class="num" id="sLearned">0</div><div class="label">已学会</div></div>
+    <div class="stat"><div class="num" id="sDiff">0</div><div class="label">难记词</div></div>
+    <div class="stat"><div class="num" id="sDay">-</div><div class="label">学习天数</div></div>
+    <div class="stat full">
+      <div class="num" id="sPct">0%</div><div class="label">总进度</div>
+      <div class="progress-bar"><i id="sBar" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <a class="nav-btn primary" href="table.html#study" id="btnStudy">
+      <div class="ico ico-study">▶️</div>
+      <div class="txt"><div class="t" id="btnStudyText">开始学习</div><div class="d" id="btnStudyDesc">自由学习模式</div></div>
+      <div class="arrow">›</div>
+    </a>
+    <a class="nav-btn" href="table.html#wordlist">
+      <div class="ico ico-list">📖</div>
+      <div class="txt"><div class="t">总单词表</div><div class="d">A–Z 浏览全部单词，支持搜索</div></div>
+      <div class="arrow">›</div>
+    </a>
+    <a class="nav-btn" href="table.html#difficult">
+      <div class="ico ico-diff">⚠️</div>
+      <div class="txt"><div class="t">难记库复习</div><div class="d">专攻标记的难点生词，卡片模式</div></div>
+      <div class="arrow">›</div>
+    </a>
+    <a class="nav-btn" href="table.html#settings">
+      <div class="ico ico-setting">⚙️</div>
+      <div class="txt"><div class="t">学习设置</div><div class="d">学习计划天数、每轮数量、背诵顺序</div></div>
+      <div class="arrow">›</div>
+    </a>
+  </div>
+
+  <div class="footer">数据保存在本地浏览器 · 清除浏览器数据会丢失进度</div>
+</div>
+
+<script>
+const LS_CFG='vocab_cfg2', LS_PROG='vocab_prog2';
+const TOTAL=4496;
+function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}}
+function $(id){return document.getElementById(id);}
+function renderStats(){
+  const cfg=load(LS_CFG,{planDays:0,roundSize:20,order:'az',accent:'us'});
+  const prog=load(LS_PROG,null);
+  let learned=0,diff=0,day='-',pct=0;
+  if(prog){
+    learned=new Set(prog.studied||[]).size;
+    diff=new Set(prog.difficult||[]).size;
+    day=cfg.planDays>0?((prog.dayIndex||0)+1)+'/'+cfg.planDays:'自由';
+    pct=Math.min(100,Math.round(learned/TOTAL*100));
+  }
+  $('sTotal').textContent=TOTAL;
+  $('sLearned').textContent=learned;
+  $('sDiff').textContent=diff;
+  $('sDay').textContent=day;
+  $('sPct').textContent=pct+'%';
+  $('sBar').style.width=pct+'%';
+  if(prog&&prog.pos>0&&(prog.studied||[]).length>0){
+    $('btnStudyText').textContent='继续学习';
+    $('btnStudyDesc').textContent='已学 '+learned+' 词 · 接续上次位置';
+  }else{
+    $('btnStudyText').textContent='开始学习';
+    $('btnStudyDesc').textContent=cfg.planDays>0?'计划 '+cfg.planDays+' 天 · 每天均衡 A–Z':'自由学习模式';
+  }
+}
+renderStats();
+document.addEventListener('visibilitychange',function(){if(!document.hidden)renderStats();});
+</script>
 </body>
 </html>
