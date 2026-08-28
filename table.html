@@ -363,6 +363,17 @@ function markDifficult(){
 }
 
 // 发音
+function playWord(w){
+  if(!w) return;
+  const type=cfg.accent==='uk'?2:1;
+  try{
+    const a=new Audio('https://dict.youdao.com/dictvoice?audio='+encodeURIComponent(w)+'&type='+type);
+    a.play().catch(function(){
+      const b=new Audio('https://fanyi.baidu.com/gettts?lan=en&text='+encodeURIComponent(w)+'&spd=3&source=web');
+      b.play().catch(function(){});
+    });
+  }catch(e){}
+}
 function playSound(e){
   if(e) e.stopPropagation();
   const wi=currentWordIndex(); if(wi<0) return;
@@ -472,6 +483,7 @@ function showWordList(){
   document.getElementById('wlModeLabel').textContent='';
   document.getElementById('wlSearch').value='';
   document.getElementById('wlPanel').classList.add('show');
+  document.getElementById('donePage').classList.remove('show');
   setActiveNav('navList');
   buildLetters(); renderWordList();
 }
@@ -481,7 +493,17 @@ function showDifficult(){
     toast('还没有标记难记词，学习时点「标记难点」即可加入');
     return;
   }
-  // 进入难记库复习模式
+  // 显示难记词列表(词表面板过滤模式)
+  wlFilter='difficult';
+  document.getElementById('wlModeLabel').textContent='· 难记库 ('+diffs.length+')';
+  document.getElementById('wlSearch').value='';
+  document.getElementById('wlPanel').classList.add('show');
+  setActiveNav('navDiff');
+  buildLetters(); renderWordList();
+}
+function startDifficultReview(){
+  const diffs=prog?prog.difficult:[];
+  if(!diffs||diffs.length===0){ toast('难记库为空'); return; }
   reviewMode=true;
   queue=diffs.slice();
   dayLength=queue.length;
@@ -490,7 +512,7 @@ function showDifficult(){
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navDiff');
   render();
-  toast('难记库复习模式 · 共 '+queue.length+' 词');
+  toast('难记库复习 · 共 '+queue.length+' 词');
 }
 function closeWordList(){
   document.getElementById('wlPanel').classList.remove('show');
@@ -517,25 +539,34 @@ function renderWordList(){
   let items=[];
   for(let i=0;i<DATA.length;i++){
     const w=DATA[i][0], ipa=DATA[i][1], mean=DATA[i][2];
-    if(wlFilter!=='all' && w[0].toUpperCase()!==wlFilter) continue;
+    if(wlFilter==='difficult'){
+      if(!diffSet.has(i)) continue;
+    } else if(wlFilter!=='all' && w[0].toUpperCase()!==wlFilter){
+      continue;
+    }
     if(q && w.toLowerCase().indexOf(q)<0 && mean.toLowerCase().indexOf(q)<0) continue;
     items.push({i,w,ipa,mean,diff:diffSet.has(i)});
   }
   document.getElementById('wlCount').textContent='共 '+items.length+' 词';
+  let header='';
+  if(wlFilter==='difficult' && items.length>0){
+    header='<div style="padding:10px 0;text-align:center"><button onclick="startDifficultReview()" style="background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff;border:none;height:44px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🎯 开始复习难记词 ('+items.length+')</button></div>';
+  }
   if(items.length===0){
-    list.innerHTML='<div class="wl-empty">没有找到匹配的单词</div>';
+    list.innerHTML=header+'<div class="wl-empty">没有找到匹配的单词</div>';
     return;
   }
-  // 限制渲染数量(性能)
   const show=items.slice(0,500);
-  list.innerHTML=show.map(it=>
-    `<div class="wl-item" onclick="jumpToWord(${it.i})">`+
-    '<span class="w">'+esc(it.w)+'</span>'+
+  list.innerHTML=header+show.map(function(it){
+    var wsafe=esc(it.w).replace(/'/g,"&#39;");
+    return '<div class="wl-item">'+
+    '<span class="w" onclick="playWord(\''+wsafe+'\')" style="cursor:pointer">'+esc(it.w)+' 🔊</span>'+
     '<span class="p">'+esc(it.ipa)+'</span>'+
     '<span class="m">'+esc(it.mean)+'</span>'+
+    '<span onclick="jumpToWord('+it.i+')" style="color:#0ea5e9;font-size:12px;cursor:pointer;flex-shrink:0;padding:3px 10px;border:1px solid #7dd3fc;border-radius:8px;white-space:nowrap">学习</span>'+
     (it.diff?'<span class="diff">⚠️</span>':'')+
-    '</div>'
-  ).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
+    '</div>';
+  }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
 }
 function jumpToWord(idx){
   // 从词表点击跳转到学习该词
