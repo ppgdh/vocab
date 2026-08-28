@@ -252,6 +252,9 @@
       <button onclick="closeWordList()">←</button>
       <div class="title">总单词表 <span id="wlModeLabel"></span></div>
     </div>
+    <div class="wl-direct-study" id="wlDirectStudy" style="text-align:center;padding:8px 0">
+      <button onclick="startFromWordList()" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;height:40px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">📖 直接学习（从词首开始）</button>
+    </div>
     <div class="wl-search"><input type="text" id="wlSearch" placeholder="搜索单词或释义..." oninput="renderWordList()"></div>
     <div class="wl-letters" id="wlLetters"></div>
     <div class="wl-count" id="wlCount"></div>
@@ -668,6 +671,7 @@ function showWordList(){
   document.getElementById('wlPanel').classList.add('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navList');
+  document.getElementById('wlDirectStudy').style.display='';
   buildLetters(); renderWordList();
 }
 function setTagFilter(id){
@@ -697,6 +701,7 @@ function showDifficult(){
   document.getElementById('wlSearch').value='';
   document.getElementById('wlPanel').classList.add('show');
   setActiveNav('navDiff');
+  document.getElementById('wlDirectStudy').style.display='none';
   buildLetters(); renderWordList();
 }
 function startDifficultReview(){
@@ -810,6 +815,22 @@ function renderWordList(){
     '</div>';
   }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条，请用搜索缩小范围</div>':'');
 }
+function startFromWordList(){
+  reviewMode=false;
+  if(!prog.difficult) prog.difficult=[];
+  queue=Array.from({length:DATA.length},function(_,i){return i;});
+  dayLength=queue.length;
+  prog.mode='free';
+  prog.pos=0;
+  document.getElementById('wlPanel').classList.remove('show');
+  document.getElementById('donePage').classList.remove('show');
+  setActiveNav('navStudy');
+  save(LS_PROG,prog);
+  render();
+  updateMarkBtn();
+  toast('从词首开始学习 · 共 '+queue.length+' 词');
+}
+
 function jumpToWord(idx){
   // 从词表点击跳转到学习该词：构建全量队列并准确定位
   reviewMode=false;
