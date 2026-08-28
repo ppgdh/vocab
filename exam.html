@@ -602,7 +602,6 @@ function renderQCard(){
     const correctAns = answers[q.num];
     const userAns = userAnswers[q.num];
     const isCorrect = userAns === correctAns;
-    const qt = qTrans[q.num];
     html += '<div class="q-result show ' + (isCorrect ? 'correct' : 'wrong') + '">';
     html += '<div class="q-answer">' + (isCorrect ? '✓ 回答正确' : '✗ 回答错误') + '（正确答案：' + correctAns + '）</div>';
     if(qt) html += '<div class="q-explanation">题目翻译：' + escapeHtml(qt) + '</div>';
@@ -703,7 +702,6 @@ function submitObjective(){
   
   examSubmitted = true;
   let correct = 0;
-  let qTransList = '';
 
   examQuestions.forEach(q => {
     const userAns = userAnswers[q.num];
