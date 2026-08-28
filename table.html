@@ -731,7 +731,7 @@ function openSettings(){
   document.querySelectorAll('input[name=accent]').forEach(r=>r.checked=(r.value===cfg.accent));
   document.getElementById('settings').classList.add('show');
 }
-function closeSettings(){ document.getElementById('settings').classList.remove('show'); }
+function closeSettings(){ document.getElementById('settings').classList.remove('show'); goHome(); }
 function saveSettings(){
   const days=parseInt(document.getElementById('inDays').value)||0;
   const round=parseInt(document.getElementById('inRound').value)||20;
@@ -865,10 +865,14 @@ function startDifficultReview(){
 }
 function closeWordList(){
   document.getElementById('wlPanel').classList.remove('show');
-  setActiveNav(reviewMode?'navDiff':'navStudy');
+  goHome();
 }
 // ================= 总词表 =================
 function buildLetters(){
+  if(wlFilter==='wrong'){
+    document.getElementById('wlLetters').innerHTML='';
+    return;
+  }
   const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   const box=document.getElementById('wlLetters');
   box.innerHTML=`<span class="active" data-l="all" onclick="filterLetter('all')">全部</span>`+
@@ -882,6 +886,36 @@ function filterLetter(l){
   renderWordList();
 }
 function renderWordList(){
+  // 错题库模式
+  if(wlFilter==='wrong'){
+    const q=document.getElementById('wlSearch').value.trim().toLowerCase();
+    const list=document.getElementById('wlList');
+    const wrongSet=new Set(prog.wrongWords||[]);
+    let items=[];
+    for(let i=0;i<DATA.length;i++){
+      if(!wrongSet.has(i)) continue;
+      const w=DATA[i][0],ipa=DATA[i][1],mean=DATA[i][2];
+      if(q&&w.toLowerCase().indexOf(q)<0&&mean.toLowerCase().indexOf(q)<0) continue;
+      items.push({i,w,ipa,mean,tags:getWordTags(i)});
+    }
+    document.getElementById('wlCount').textContent='共 '+items.length+' 词';
+    let header='<div style="padding:10px 0;text-align:center"><button onclick="startWrongReview()" style="background:linear-gradient(90deg,#ef4444,#f97316);color:#fff;border:none;height:44px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🎯 开始复习错题 ('+items.length+')</button></div>';
+    if(items.length===0){ list.innerHTML=header+'<div class="wl-empty">没有找到匹配的错题</div>'; return; }
+    const show=items.slice(0,500);
+    const tagCfg=getTagCfg();
+    list.innerHTML=header+show.map(function(it){
+      var wsafe=esc(it.w).replace(/'/g,"&#39;");
+      var tagHtml=it.tags.map(function(tid){var t=tagCfg.find(function(x){return x.id===tid;});return t?'<span class="wl-tag" style="background:'+t.color+'">'+t.name+'</span>':'';}).join('');
+      return '<div class="wl-item">'+
+      '<span class="w" onclick="playWord(\''+wsafe+'\')" style="cursor:pointer">'+esc(it.w)+' 🔊</span>'+
+      '<span class="p">'+esc(it.ipa)+'</span>'+
+      '<span class="m">'+esc(it.mean)+'</span>'+
+      (tagHtml?'<span class="wl-tags">'+tagHtml+'</span>':'')+
+      '<span onclick="jumpToWord('+it.i+')" style="color:#0ea5e9;font-size:12px;cursor:pointer;flex-shrink:0;padding:3px 10px;border:1px solid #7dd3fc;border-radius:8px;white-space:nowrap">学习</span>'+
+      '</div>';
+    }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条</div>':'');
+    return;
+  }
   const q=document.getElementById('wlSearch').value.trim().toLowerCase();
   const list=document.getElementById('wlList');
   const tagCfg=getTagCfg();
@@ -1256,50 +1290,10 @@ function startWrongReview(){
 }
 
 // 扩展renderWordList支持wrong筛选
-(function(){
-  const oldRender=renderWordList;
-  renderWordList=function(){
-    if(wlFilter!=='wrong'){ oldRender(); return; }
-    const q=document.getElementById('wlSearch').value.trim().toLowerCase();
-    const list=document.getElementById('wlList');
-    const wrongSet=new Set(prog.wrongWords||[]);
-    let items=[];
-    for(let i=0;i<DATA.length;i++){
-      if(!wrongSet.has(i)) continue;
-      const w=DATA[i][0],ipa=DATA[i][1],mean=DATA[i][2];
-      if(q&&w.toLowerCase().indexOf(q)<0&&mean.toLowerCase().indexOf(q)<0) continue;
-      items.push({i,w,ipa,mean,tags:getWordTags(i),hasHard:false});
-    }
-    document.getElementById('wlCount').textContent='共 '+items.length+' 词';
-    let header='<div style="padding:10px 0;text-align:center"><button onclick="startWrongReview()" style="background:linear-gradient(90deg,#ef4444,#f97316);color:#fff;border:none;height:44px;padding:0 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">🎯 开始复习错题 ('+items.length+')</button></div>';
-    if(items.length===0){ list.innerHTML=header+'<div class="wl-empty">没有找到匹配的错题</div>'; return; }
-    const show=items.slice(0,500);
-    const tagCfg=getTagCfg();
-    list.innerHTML=header+show.map(function(it){
-      var wsafe=esc(it.w).replace(/'/g,"&#39;");
-      var tagHtml=it.tags.map(function(tid){var t=tagCfg.find(function(x){return x.id===tid;});return t?'<span class="wl-tag" style="background:'+t.color+'">'+t.name+'</span>':'';}).join('');
-      return '<div class="wl-item">'+
-      '<span class="w" onclick="playWord(\''+wsafe+'\')" style="cursor:pointer">'+esc(it.w)+' 🔊</span>'+
-      '<span class="p">'+esc(it.ipa)+'</span>'+
-      '<span class="m">'+esc(it.mean)+'</span>'+
-      (tagHtml?'<span class="wl-tags">'+tagHtml+'</span>':'')+
-      '<span onclick="jumpToWord('+it.i+')" style="color:#0ea5e9;font-size:12px;cursor:pointer;flex-shrink:0;padding:3px 10px;border:1px solid #7dd3fc;border-radius:8px;white-space:nowrap">学习</span>'+
-      '</div>';
-    }).join('')+(items.length>500?'<div class="wl-empty">仅显示前 500 条</div>':'');
-  };
-})();
+
 
 // 扩展buildLetters支持wrong筛选
-(function(){
-  const oldBuild=buildLetters;
-  buildLetters=function(){
-    if(wlFilter==='wrong'){
-      document.getElementById('wlLetters').innerHTML='';
-      return;
-    }
-    oldBuild();
-  };
-})();
+
 
 </script>
 </body>
