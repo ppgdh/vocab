@@ -284,7 +284,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ================= 队列构建 =================
 function initProg(){
   if(!prog){
-    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},perm:[],lastDate:'',finished:false};
+    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,perm:[],lastDate:'',finished:false};
   }
   if(!prog.tags) prog.tags={};
   if(!prog.difficult) prog.difficult=[];
@@ -410,12 +410,14 @@ function next(learned){
   const wi=currentWordIndex();
   if(learned && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
   if(prog.pos<queue.length-1){ prog.pos++; }
+  if(directMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
   render();
 }
 function prev(){
   if(!queue.length) return;
   if(prog.pos>0){ prog.pos--; }
+  if(directMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
   render();
 }
@@ -646,7 +648,8 @@ function resetProgress(){
 // ================= 启动 =================
 
 // ================= 视图切换 =================
-let reviewMode=false;  // 难点库模式
+let reviewMode=false;
+let directMode=false;  // 难点库模式
 let wlFilter='all';
 let wlTagFilter='all';    // 词表过滤: all / difficult / 字母
 function setActiveNav(id){
@@ -656,6 +659,7 @@ function setActiveNav(id){
 }
 function showStudy(){
   reviewMode=false;
+  directMode=false;
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
@@ -812,18 +816,21 @@ function renderWordList(){
 }
 function startFromWordList(){
   reviewMode=false;
+  directMode=true;
   if(!prog.difficult) prog.difficult=[];
+  if(!prog.directPos) prog.directPos=0;
   queue=Array.from({length:DATA.length},function(_,i){return i;});
   dayLength=queue.length;
   prog.mode='free';
-  prog.pos=0;
+  prog.pos=Math.min(prog.directPos, queue.length-1);
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
   save(LS_PROG,prog);
   render();
   updateMarkBtn();
-  toast('从词首开始学习 · 共 '+queue.length+' 词');
+  if(prog.directPos>0){ toast('接续直接学习进度 · 第 '+(prog.pos+1)+' / '+queue.length+' 词'); }
+  else{ toast('从词首开始学习 · 共 '+queue.length+' 词'); }
 }
 
 function jumpToWord(idx){
