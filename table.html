@@ -422,10 +422,9 @@ function buildQueue(){
     reviewMode=prog.jumpSaved.reviewMode;
     prog.pos=prog.jumpSaved.pos;
     prog.directPos=prog.jumpSaved.directPos;
-    prog.directMode=prog.jumpSaved.directMode;  // 同步到prog,防止后续showStudy重置
+    prog.directMode=prog.jumpSaved.directMode;
     delete prog.jumpSaved;
-    delete prog.studyPos;
-    delete prog.savedStudyPos;
+    // 不删除studyPos/savedStudyPos:独立恢复机制,走if分支不会被else的studyPos检查覆盖
     jumpMode=false;
     // jumpSaved包含完整状态,跳过后续恢复
   }else{
@@ -801,15 +800,20 @@ function showStudy(){
     prog.directPos=prog.jumpSaved.directPos;
     prog.directMode=prog.jumpSaved.directMode;
     delete prog.jumpSaved;
-    // jumpSaved包含完整状态,清除其他临时恢复标记,防止buildQueue中被覆盖
-    delete prog.studyPos;
-    delete prog.savedStudyPos;
+    // 不删除studyPos/savedStudyPos:它们是独立的恢复机制(直接学习→继续学习),与jumpSaved无关
     jumpMode=false;
-    save(LS_PROG,prog);  // 先保存恢复后的状态,防止buildQueue的initProg重新加载覆盖
+    save(LS_PROG,prog);
     document.getElementById('wlPanel').classList.remove('show');
     document.getElementById('donePage').classList.remove('show');
     setActiveNav('navStudy');
-    buildQueue(); render();
+    // directMode时手动构建全量队列,避免buildQueue中studyPos检查覆盖prog.pos
+    if(directMode){
+      queue=Array.from({length:DATA.length},function(_,i){return i;});
+      dayLength=queue.length;
+    }else{
+      buildQueue();
+    }
+    render();
     return;
   }
   // 从复习模式回来,恢复原学习进度(持久化,页面刷新也能恢复)
@@ -821,10 +825,13 @@ function showStudy(){
   if(prog.studyPos!==undefined){
     prog.pos=prog.studyPos;
     delete prog.studyPos;
+    directMode=false;
+    prog.directMode=false;
+  }else{
+    reviewMode=false;
+    directMode=prog.directMode || false;
+    if(!directMode) prog.directMode=false;
   }
-  reviewMode=false;
-  directMode=prog.directMode || false;
-  if(!directMode) prog.directMode=false;
   document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navStudy');
