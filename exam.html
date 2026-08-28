@@ -419,6 +419,7 @@ function parseMatchingSection(content){
     passage = passage.replace(/^\s*阅读下面短文.*?\n/gm, '');
   }
   
+  passage = cleanWatermark(passage);
   return {passage, questions};
 }
 
