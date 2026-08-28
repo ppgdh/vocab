@@ -416,6 +416,15 @@ function initProg(){
 }
 function buildQueue(){
   initProg();
+  // 页面刷新后自动恢复：从直接学习/复习模式回来时恢复原继续学习进度
+  if(prog.studyPos!==undefined){
+    prog.pos=prog.studyPos;
+    delete prog.studyPos;
+  }
+  if(prog.savedStudyPos!==undefined && prog.savedStudyPos!==null){
+    prog.pos=prog.savedStudyPos;
+    delete prog.savedStudyPos;
+  }
   const n=DATA.length;
   let set, mode='free';
   // 计划模式
