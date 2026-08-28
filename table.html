@@ -165,7 +165,7 @@
     <div class="hintbar"><span>👈左滑=下一个  👉右滑=上一个</span><span>点击卡片看释义</span></div>
     <div class="actions">
       <div class="markbtns" id="markBtns">
-  <button class="btn-mark" onclick="openTagPicker()" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none">🏷️ 标记</button>
+  <button class="btn-mark" onclick="toggleHardTag()" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none">🏷️ 标记难点</button>
 </div>
       <button class="btn-next" onclick="next(true)">下一个 ✓</button>
     </div>
@@ -367,6 +367,7 @@ function render(){
   const m=document.getElementById('meaning');
   m.classList.remove('hidden'); m.innerHTML=esc(w[2]||'暂无释义'); m.dataset.def=esc(w[2]||'');
   renderCardTags();
+  updateMarkBtn();
   // 计划信息
   const planText=document.getElementById('planText');
   if(cfg.planDays>0){
@@ -425,6 +426,50 @@ function getWordTags(idx){
   if(!prog.tags) prog.tags={};
   return prog.tags[idx]||[];
 }
+// 一键切换难点标记(不弹面板)
+function toggleHardTag(){
+  if(!queue.length) return;
+  const wi=currentWordIndex();
+  if(!prog.tags) prog.tags={};
+  if(!prog.difficult) prog.difficult=[];
+  const cur=getWordTags(wi);
+  const isHard=cur.indexOf('hard')>=0 || prog.difficult.indexOf(wi)>=0;
+  if(isHard){
+    // 取消难点标记
+    prog.tags[wi]=cur.filter(function(t){return t!=='hard';});
+    if(prog.tags[wi].length===0) delete prog.tags[wi];
+    prog.difficult=prog.difficult.filter(function(x){return x!==wi;});
+    toast('已取消难点标记');
+  }else{
+    // 标记为难点
+    if(cur.indexOf('hard')<0) cur.push('hard');
+    prog.tags[wi]=cur;
+    if(prog.difficult.indexOf(wi)<0) prog.difficult.push(wi);
+    if(prog.studied.indexOf(wi)<0) prog.studied.push(wi);
+    toast('✓ 已加入难点库');
+  }
+  save(LS_PROG,prog);
+  updateMarkBtn();
+  renderCardTags();
+}
+
+// 更新标记按钮状态
+function updateMarkBtn(){
+  const btn=document.querySelector('.btn-mark');
+  if(!btn) return;
+  const wi=currentWordIndex();
+  if(wi<0){ btn.textContent='🏷️ 标记难点'; btn.style.background='linear-gradient(135deg,#8b5cf6,#6366f1)'; return; }
+  const cur=getWordTags(wi);
+  const isHard=cur.indexOf('hard')>=0 || (prog.difficult && prog.difficult.indexOf(wi)>=0);
+  if(isHard){
+    btn.textContent='✓ 已标记';
+    btn.style.background='linear-gradient(135deg,#10b981,#059669)';
+  }else{
+    btn.textContent='🏷️ 标记难点';
+    btn.style.background='linear-gradient(135deg,#8b5cf6,#6366f1)';
+  }
+}
+
 function openTagPicker(){
   if(!queue.length) return;
   _tagPickerIdx=currentWordIndex();
