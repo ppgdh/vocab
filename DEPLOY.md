@@ -1,5 +1,41 @@
 # 部署说明与修复清单
 
+## 部署状态
+
+- 英语作文功能已完成开发并部署到 GitHub Pages。
+- 线上地址：`https://ppgdh.github.io/vocab/`
+- 已通过线上验证：首页“历年真题 / 英语作文”5:5 入口、10 道真题题目、22 篇范文、万能句模板、范文翻转显示中文均正常。
+
+## 审查修复
+
+- 学习设置保存/重置后不再强制跳回首页，取消按钮单独负责返回。
+- 真题原文增加 OCR 水印清洗规则，`zk1810` 等页首扫描残留已去除。
+- 移除 `showAllAnswers`、`renderMatching`、`renderCloze` 等死代码。
+- 自定义标签渲染字段已统一转义。
+- 全站新增 `favicon.svg`，消除 favicon 404。
+- 新增 `smoke_test.ps1` 静态回归检查，运行方式：
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File smoke_test.ps1
+  ```
+
+## 本次新增功能
+
+- 首页新增“英语作文”入口，与“历年真题”并列显示。
+- 新增 `essay.html`，包含：
+  - 10 道真题作文题目列表
+  - 22 篇中英对照范文列表
+  - 万能句 / 连接词 / 议论文与邮件模板
+  - 点击范文可查看完整英文，点击卡片翻转显示中文
+- 数据来自用户提供的 `topics.json`、`essays.json`、`templates.json`，已嵌入页面。
+
+## 阅读原文补充
+
+- 2017 年 4 月（zk1704）第一部分已补入原文：The Thinking Habit That Changed My Life
+- 2018 年 4 月（zk1804）第一部分已补入原文：Life on the Farm
+- 2019 年 4 月（zk1904）第一部分已补入原文：My Brother
+- 原文从用户提供的《自考英语二真题演练 17.04~21.10》PDF 中 OCR 提取并人工整理，已随 `exam.html` 部署上线。
+- 线上验证：三套题的阅读判断均显示 10 题并带完整原文。
+
 ## 本次修复内容
 
 针对“阅读题不显示原文”的问题，已从现有题库数据中找回并补全以下 6 个阅读选择题原文：
