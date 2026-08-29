@@ -25,6 +25,7 @@ Check 'missing passages added' ($exam.Contains('The Thinking Habit That Changed 
 Check 'settings stays on page' (-not $table.Contains("classList.remove('show'); goHome();"))
 Check 'cancel settings added' ($table.Contains('function cancelSettings()'))
 Check 'tag fields escaped' ($table.Contains("esc(t.id)") -and $table.Contains("esc(t.name)") -and $table.Contains("esc(t.color)"))
+Check 'progress normalization' ($table.Contains('if(!prog.studied) prog.studied=[];') -and $table.Contains('if(!prog.wrongWords) prog.wrongWords=[];'))
 Check 'dead exam code removed' (-not $exam.Contains('function showAllAnswers()') -and -not $exam.Contains('function renderMatching(') -and -not $exam.Contains('function renderCloze('))
 Check 'ocr cleanup rules' ($exam.Contains('i*E/7:00015') -and $exam.Contains('#\w+#\w+'))
 
