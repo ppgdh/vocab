@@ -5,6 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>专升本英语 4496 单词学习表</title>
 <meta name="description" content="专升本英语 4496 核心单词 · 卡片速记 · 计划学习 · 难点生词 · 进度记忆">
 <meta property="og:title" content="专升本英语 4496 单词学习表">
@@ -266,7 +267,7 @@
       </div>
       <div class="rowbtns">
         <button class="btn-reset" onclick="resetProgress()">重置进度</button>
-        <button class="btn-cancel" onclick="closeSettings()">取消</button>
+        <button class="btn-cancel" onclick="cancelSettings()">取消</button>
         <button class="btn-save" onclick="saveSettings()">保存设置</button>
       </div>
     </div>
@@ -628,9 +629,9 @@ function renderTagList(){
   const box=document.getElementById('tagList');
   box.innerHTML=tags.map(function(t){
     const active=cur.indexOf(t.id)>=0;
-    return '<div class="tag-opt'+(active?' active':'')+'" data-id="'+t.id+'" onclick="toggleTagOpt(this)">'+
-      '<span class="dot" style="background:'+t.color+'"></span>'+
-      '<span class="name">'+t.name+'</span>'+
+    return '<div class="tag-opt'+(active?' active':'')+'" data-id="'+esc(t.id)+'" onclick="toggleTagOpt(this)">'+
+      '<span class="dot" style="background:'+esc(t.color)+'"></span>'+
+      '<span class="name">'+esc(t.name)+'</span>'+
       (active?'<span class="check">✓</span>':'')+
     '</div>';
   }).join('');
@@ -669,7 +670,7 @@ function renderCardTags(){
   if(!box) return;
   box.innerHTML=tags.map(function(tid){
     const t=cfg.find(function(x){return x.id===tid;});
-    return t?'<span class="card-tag" style="background:'+t.color+'">'+t.name+'</span>':'';
+    return t?'<span class="card-tag" style="background:'+esc(t.color)+'">'+esc(t.name)+'</span>':'';
   }).join('');
 }
 
@@ -762,7 +763,8 @@ function openSettings(){
   document.querySelectorAll('input[name=accent]').forEach(r=>r.checked=(r.value===cfg.accent));
   document.getElementById('settings').classList.add('show');
 }
-function closeSettings(){ document.getElementById('settings').classList.remove('show'); goHome(); }
+function closeSettings(){ document.getElementById('settings').classList.remove('show'); }
+function cancelSettings(){ closeSettings(); goHome(); }
 function saveSettings(){
   const days=parseInt(document.getElementById('inDays').value)||0;
   const round=parseInt(document.getElementById('inRound').value)||20;
