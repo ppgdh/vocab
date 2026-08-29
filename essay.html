@@ -1,0 +1,671 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>英语作文库 · 22篇范文</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:linear-gradient(160deg,#0f766e 0%,#0ea5e9 100%);min-height:100vh;color:#334155;}
+.wrap{max-width:520px;margin:0 auto;padding:14px 16px 44px;min-height:100vh;}
+.topbar{display:flex;align-items:center;gap:12px;color:#fff;padding:8px 0 16px;}
+.back{width:40px;height:40px;border-radius:12px;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;}
+.topbar h1{font-size:20px;font-weight:700;letter-spacing:0;}
+.topbar p{font-size:12px;opacity:.85;margin-top:3px;}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:rgba(255,255,255,.14);border-radius:12px;padding:5px;margin-bottom:14px;}
+.tab{border:none;background:transparent;color:rgba(255,255,255,.85);font-size:14px;font-weight:600;height:38px;border-radius:9px;cursor:pointer;}
+.tab.active{background:#fff;color:#0f766e;}
+.panel{display:none;}
+.panel.show{display:block;}
+.count{font-size:12px;color:#fff;opacity:.85;padding:2px 4px 10px;}
+.list{display:flex;flex-direction:column;gap:10px;}
+.item{background:#fff;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.10);}
+.item-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.badge{font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;color:#fff;background:#0ea5e9;white-space:nowrap;}
+.badge.cn{background:#f59e0b;}
+.badge.essay{background:#8b5cf6;}
+.item h3{font-size:16px;font-weight:700;margin-top:6px;color:#0f172a;}
+.item .en{font-size:13px;color:#64748b;margin-top:2px;}
+.item .points{font-size:12px;color:#475569;margin-top:8px;line-height:1.6;}
+.item .points b{color:#0f766e;}
+.sample-btn{margin-top:10px;border:none;background:linear-gradient(90deg,#0ea5e9,#0f766e);color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer;}
+.tpl-group{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 6px 18px rgba(0,0,0,.10);}
+.tpl-group h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;}
+.tpl-row{font-size:13px;color:#475569;line-height:1.6;padding:7px 0;border-bottom:1px dashed #e2e8f0;white-space:pre-wrap;word-break:break-word;}
+.tpl-row:last-child{border-bottom:none;}
+.tpl-row b{color:#0f766e;}
+.detail{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;padding:14px;z-index:20;}
+.detail.show{display:flex;}
+.detail-card{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;}
+.detail-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;}
+.detail-head h2{font-size:16px;color:#0f172a;flex:1;min-width:150px;}
+.detail-meta{font-size:11px;color:#64748b;padding:0 16px 10px;}
+.flip-wrap{flex:1;overflow:auto;padding:14px 16px 18px;}
+.flip-hint{font-size:11px;color:#94a3b8;text-align:center;margin-bottom:8px;}
+.flip-card{background:linear-gradient(160deg,#f0fdfa,#eff6ff);border:1px solid #99f6e4;border-radius:14px;padding:16px;cursor:pointer;min-height:180px;}
+.flip-card .face{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.75;color:#1e293b;}
+.flip-card .zh{display:none;}
+.flip-card.flipped .face.en{display:none;}
+.flip-card.flipped .face.zh{display:block;color:#0f766e;}
+.detail-close{align-self:flex-start;border:none;background:#f1f5f9;color:#475569;font-size:20px;width:34px;height:34px;border-radius:10px;cursor:pointer;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <button class="back" onclick="goBack()" aria-label="返回">←</button>
+    <div>
+      <h1>英语作文库</h1>
+      <p>真题题目 · 22篇范文 · 万能句模板</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="topics" onclick="switchTab('topics')">真题题目</button>
+    <button class="tab" data-tab="essays" onclick="switchTab('essays')">范文</button>
+    <button class="tab" data-tab="templates" onclick="switchTab('templates')">万能句</button>
+  </div>
+
+  <div class="panel show" id="panel-topics">
+    <div class="count" id="topicsCount"></div>
+    <div class="list" id="topicsList"></div>
+  </div>
+
+  <div class="panel" id="panel-essays">
+    <div class="count" id="essaysCount"></div>
+    <div class="list" id="essaysList"></div>
+  </div>
+
+  <div class="panel" id="panel-templates">
+    <div class="count">连接词、万能句、议论文与邮件模板</div>
+    <div id="templatesList"></div>
+  </div>
+</div>
+
+<div class="detail" id="detail">
+  <div class="detail-card">
+    <div class="detail-head">
+      <h2 id="detailTitle"></h2>
+      <button class="detail-close" onclick="closeDetail()" aria-label="关闭">×</button>
+    </div>
+    <div class="detail-meta" id="detailMeta"></div>
+    <div class="flip-wrap">
+      <div class="flip-hint">点击卡片翻转查看中文翻译</div>
+      <div class="flip-card" id="flipCard" onclick="this.classList.toggle('flipped')">
+        <div class="face en" id="flipEn"></div>
+        <div class="face zh" id="flipZh"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOPICS = {
+  "topics": [
+    {
+      "year": "2024年4月",
+      "exam": "英语（专升本）13000",
+      "titleEn": "Online Shopping",
+      "titleCn": "网上购物",
+      "type": "议论文",
+      "points": [
+        "你所了解的网上购物情况",
+        "你对网上购物的看法"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        10,
+        11
+      ]
+    },
+    {
+      "year": "2024年10月",
+      "exam": "英语（专升本）13000",
+      "titleEn": "Uses of the Internet",
+      "titleCn": "网络的用途",
+      "type": "议论文",
+      "points": [
+        "你常用网络做哪些事",
+        "网络对你的生活有何影响"
+      ],
+      "hasSample": false,
+      "sampleId": []
+    },
+    {
+      "year": "2025年4月",
+      "exam": "英语（专升本）13000",
+      "titleEn": "No Smoking in Public Places",
+      "titleCn": "公共场所禁烟",
+      "type": "议论文",
+      "points": [
+        "公共场所吸烟有什么危害",
+        "你能为公共场所禁烟做些什么"
+      ],
+      "hasSample": false,
+      "sampleId": []
+    },
+    {
+      "year": "2026年4月",
+      "exam": "英语（专升本）13000",
+      "titleEn": "Safe Journey",
+      "titleCn": "安全出行",
+      "type": "议论文",
+      "points": [
+        "旅途中安全的重要性",
+        "旅途中应该特别注意的事项"
+      ],
+      "hasSample": false,
+      "sampleId": []
+    },
+    {
+      "year": "2020年8月",
+      "exam": "自考英语（二）",
+      "titleEn": "Spring Is Coming",
+      "titleCn": "春天来了",
+      "type": "写景记叙文",
+      "points": [
+        "简要描写春天的景象",
+        "介绍人们在春天里的各种活动"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        17
+      ]
+    },
+    {
+      "year": "2020年10月",
+      "exam": "自考英语（二）",
+      "titleEn": "An Unforgettable Holiday",
+      "titleCn": "一次难忘的假期",
+      "type": "记叙文",
+      "points": [
+        "哪一个假期令你难忘",
+        "为什么令你难忘"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        18
+      ]
+    },
+    {
+      "year": "2022年4月",
+      "exam": "自考英语（二）",
+      "titleEn": "Learning Chinese (Dear John)",
+      "titleCn": "学习汉语建议（邮件）",
+      "type": "电子邮件",
+      "points": [
+        "支持他学汉语",
+        "给出学习建议"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        21
+      ]
+    },
+    {
+      "year": "2021年4月",
+      "exam": "自考英语（二）",
+      "titleEn": "A Traditional Chinese Festival (Dear John)",
+      "titleCn": "介绍一个中国传统节日（邮件）",
+      "type": "电子邮件",
+      "points": [
+        "节日名称",
+        "节日由来",
+        "人们如何庆祝这一节日"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        19
+      ]
+    },
+    {
+      "year": "2021年10月",
+      "exam": "自考英语（二）",
+      "titleEn": "My Favorite Chinese Festival",
+      "titleCn": "我最喜欢的中国节日",
+      "type": "议论文",
+      "points": [
+        "你最喜爱的中国节日是什么",
+        "你为什么喜欢这个节日"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        20
+      ]
+    },
+    {
+      "year": "2022年10月",
+      "exam": "自考英语（二）",
+      "titleEn": "My Dream Trip",
+      "titleCn": "我的梦想之旅",
+      "type": "议论文",
+      "points": [
+        "你最想去哪里旅游",
+        "为什么最想去那里"
+      ],
+      "hasSample": true,
+      "sampleId": [
+        22
+      ]
+    }
+  ],
+  "note": "hasSample=true 的题目可在 essays.json 中按 sampleId 找到对应范文；其余题目暂无官方范文，可用 templates.json 模板自行套用。"
+};
+const ESSAYS = [
+  {
+    "id": 1,
+    "category": "电子邮件",
+    "title": "我的爱好",
+    "titleEn": "My Favorite Hobby",
+    "prompt": "假设你结识了一位英国朋友John，为了增进彼此的了解，请给他写一封电子邮件，介绍一下自己最喜欢的业余爱好。内容包括：(1)这项爱好是什么；(2)你喜欢它的原因。请以LiKe署名。",
+    "english": "Dear John,\n\nI am writing to tell you about my favorite hobby, traveling. As a matter of fact, traveling is good for us in many ways. I enjoy it because of the following reasons.\n\nFirst and foremost, traveling can improve our quality of life, which has been widely accepted by the public. It teaches me many new things. What's more, there is no doubt that I made many friends because of my hobby. I can make many friends when traveling, which enriches my social life. Last but not least, it goes without saying that to a certain extent, travel is very meaningful. It gets me to know the world and helps me with my studies. In conclusion, travel is very important for us, we can't live without travel.\n\nI wish you and your family good health and happiness. I am looking forward to hearing from you soon.\n\nYours sincerely,\nLiKe",
+    "chinese": "亲爱的约翰：\n\n我写信是想告诉你我最喜欢的爱好——旅游。事实上，旅游在很多方面对我们都有好处。我喜欢它的原因如下。\n\n首先，旅游可以提高我们的生活质量，这已被公众广泛认可。它教会我很多新东西。其次，毫无疑问，因为这个爱好我交了很多朋友。旅游时我能结交很多朋友，这丰富了我的社交生活。最后，不用说，在某种程度上，旅游是非常有意义的。它让我了解世界，对我的学习也有帮助。总之，旅游对我们很重要，我们的生活离不开旅游。\n\n祝你和家人身体健康、幸福快乐。期待你的回信。\n\n你诚挚的，\n李可"
+  },
+  {
+    "id": 2,
+    "category": "议论文",
+    "title": "最好的去处",
+    "titleEn": "The Best Place To Go",
+    "prompt": "某英文报社正在举办题为\"The Best Place To Go\"的征文活动。请就此题目写一篇英文短文应征。内容包括：你认为最好的旅游去处是哪里？为什么？",
+    "english": "It is well known that travel is very popular and trendy in this day and age. As a matter of fact, there are many wonderful places in the world that people can visit. But in my opinion, the best place to go is Lijiang. Here are the reasons why I think Lijiang is the best choice.\n\nFirst and foremost, Lijiang is one of the most famous tourist attractions in China. The old town of Lijiang has a history of more than 800 years. The air is fresh and clean, and the scenery is very beautiful. What's more, the local people are very friendly and kind. We can enjoy many kinds of delicious foods in Lijiang. Last but not least, Lijiang is famous for its unique traditional culture and custom. Visiting Lijiang is an experience unlike any other.\n\nAs a result, as far as I am concerned, Lijiang is the best place to go.",
+    "chinese": "众所周知，在当今时代旅游是非常流行和时髦的。事实上，世界上有很多美妙的地方可以游览。但在我看来，最好的去处是丽江。以下是我认为丽江是最佳选择的原因。\n\n首先，丽江是中国最著名的旅游景点之一。丽江古城有800多年的历史。空气清新干净，风景非常美丽。其次，当地人非常友好善良。在丽江我们可以品尝各种美食。最后，丽江以其独特的传统文化和习俗而闻名。游览丽江是一种与众不同的体验。\n\n因此，在我看来，丽江是最好的去处。"
+  },
+  {
+    "id": 3,
+    "category": "议论文",
+    "title": "最好的去处（北京）",
+    "titleEn": "The Best Place To Go - Beijing",
+    "prompt": "某英文报社正在举办题为\"The Best Place To Go\"的征文活动。写一篇英文短文介绍你最喜欢的旅游城市。",
+    "english": "It is well known that travel is very popular and trendy in this day and age. As a matter of fact, there are many wonderful places in the world that people can visit. But in my opinion, I enjoy traveling to Beijing. Here are the reasons.\n\nOn the one hand, there are many interesting places in Beijing, such as the Great Wall, the Imperial Palace, and the Summer Palace. The air is fresh and clean, and the scenery is very beautiful. We can spend two or three days visiting the sights. On the other hand, the local people are very friendly and kind. We can enjoy many kinds of delicious foods in Beijing.\n\nAs a result, as far as I am concerned, Beijing is the best place to go.",
+    "chinese": "众所周知，在当今时代旅游非常流行。事实上，世界上有很多美妙的地方可以游览。但在我看来，我喜欢去北京旅游。原因如下。\n\n一方面，北京有很多有趣的地方，比如长城、故宫和颐和园。空气清新，风景优美。我们可以花两三天时间观光。另一方面，当地人非常友好善良。我们可以在北京品尝各种美食。\n\n因此，在我看来，北京是最好的去处。"
+  },
+  {
+    "id": 4,
+    "category": "电子邮件",
+    "title": "大学生活建议",
+    "titleEn": "Suggestions for University Life",
+    "prompt": "假设你的堂弟Li Ming刚刚被一所大学录取。请给他写一封英文电子邮件，祝贺他并给他一些关于大学生活学习的建议。请以Li Ke署名。",
+    "english": "Dear Li Ming,\n\nI am glad to hear that you were admitted to the university you applied for. Congratulations to you. I am very proud of you.\n\nAnd I want to give you some suggestions for your university life. Firstly, it is a good idea to make full use of the library in your university to enrich your knowledge. Keep in mind that learning is really important, helpful, and absolutely necessary. So study hard to make academic progress. Secondly, you should do exercise every day. Sports can reduce your pressure and help you relax. In addition, you can take a part-time job on the weekends because it can enrich your experience and make more money.\n\nI hope you will have a wonderful university life. I am looking forward to your reply.\n\nSincerely yours,\nLi Ke",
+    "chinese": "亲爱的李明：\n\n听说你被申请的大学录取了，我很高兴。祝贺你。我为你感到骄傲。\n\n我想给你一些大学生活的建议。首先，充分利用大学图书馆来丰富知识是个好主意。记住，学习真的很重要、很有帮助，而且是绝对必要的。所以努力学习取得学业进步。其次，你应该每天锻炼。运动可以减轻压力，帮助你放松。此外，你可以在周末做兼职，因为这可以丰富经验并赚更多的钱。\n\n希望你的大学生活精彩。期待你的回信。\n\n你诚挚的，\n李可"
+  },
+  {
+    "id": 5,
+    "category": "电子邮件",
+    "title": "合住公寓",
+    "titleEn": "Sharing an Apartment",
+    "prompt": "假设你要出国留学，和当地学生John一起合住一套公寓。给他写一封电子邮件，内容包括：告诉他你的生活习惯；请他给一些关于在那里生活的建议。请以LiKe署名。",
+    "english": "Dear John,\n\nI'm glad to know that you will share an apartment with me. I am really excited to be your roommate. I'm writing to tell you about my living habits. I am used to getting up early in the morning to do some jogging. If you like jogging, we can do that together. I often go to bed before 22:30. I am a non-smoker. On the weekends, I like inviting a couple of friends over for dinner. If you have anything to worry about, please don't hesitate to tell me.\n\nBy the way, would you please give me some advice about living there? I would appreciate it very much if you could tell me something about the local customs and something that I need to pay attention to.\n\nI wish you and your family good health and happiness. I am looking forward to your reply.\n\nSincerely yours,\nLi Ke",
+    "chinese": "亲爱的约翰：\n\n很高兴知道你将和我合住一套公寓。能成为你的室友我真的很兴奋。我写信是想告诉你我的生活习惯。我习惯早起慢跑。如果你喜欢慢跑，我们可以一起。我经常在22:30前睡觉。我不吸烟。周末我喜欢邀请几个朋友来吃晚饭。如果你有什么顾虑，请不要犹豫告诉我。\n\n顺便问一下，你能给我一些在那里生活的建议吗？如果你能告诉我一些当地的风俗习惯和需要注意的事情，我将非常感激。\n\n祝你和家人身体健康、幸福快乐。期待你的回信。\n\n你诚挚的，\n李可"
+  },
+  {
+    "id": 6,
+    "category": "电子邮件",
+    "title": "推荐电影",
+    "titleEn": "Recommending a Movie",
+    "prompt": "假设你最近看了一部电影，你非常喜欢。给你的朋友Tom写一封电子邮件，内容包括：推荐这部电影给他；给出你推荐的理由。请以LiKe署名。",
+    "english": "Dear Tom,\n\nI am writing to recommend a movie that I have just watched, Ne Zha. It is one of my favorite movies. Here are the reasons why I recommend it to you.\n\nFirst and foremost, \"Ne Zha\" uses amazing special effects that I have never seen before in a movie. What's more, this movie tells a great story. It encourages us to take control of our own life and live a rich and full life. It also increases our courage, determination and confidence. Last but not least, this movie is suitable for the whole family to watch together. It is very attractive. You won't be disappointed.\n\nI wish you and your family good health and happiness. I am looking forward to meeting you.\n\nSincerely yours,\nLiKe",
+    "chinese": "亲爱的汤姆：\n\n我写信是想推荐一部我刚看过的电影《哪吒》。这是我最喜欢的电影之一。以下是我推荐它的原因。\n\n首先，《哪吒》使用了我在电影中从未见过的惊人特效。其次，这部电影讲述了一个伟大的故事。它鼓励我们掌控自己的生活，过上丰富充实的生活。它也增加了我们的勇气、决心和信心。最后，这部电影适合全家一起观看。它非常吸引人，你不会失望的。\n\n祝你和家人身体健康、幸福快乐。期待见到你。\n\n你诚挚的，\n李可"
+  },
+  {
+    "id": 7,
+    "category": "议论文",
+    "title": "住在大城市还是小镇",
+    "titleEn": "Live in a Big City or a Small Town",
+    "prompt": "某英文报社正在举办题为\"Live in a Big City or a Small Town\"的征文活动。请就此题目写一篇英文短文应征，内容包括：你喜欢住在大城市还是小镇？为什么？",
+    "english": "It is well known that living environment is very important in our lives. As a matter of fact, some people like living in a big city, and some people like living in a small town. As for me, I prefer to live in a big city. Here are the reasons why I like living in a big city.\n\nFirst and foremost, big cities offer more job opportunities and better education. This is good for our work and study. We can make more academic or career progress and more money in big cities. What's more, big cities attract people from different parts of the country. So we can make friends with people from all walks of life. Last but not least, big cities have better traffic, medical care and entertainment. The life in big cities is very convenient and colorful.\n\nAll in all, as far as I am concerned, living in a big city has many benefits. I like living in a big city.",
+    "chinese": "众所周知，生活环境在我们的生活中非常重要。事实上，有些人喜欢住在大城市，有些人喜欢住在小镇。就我而言，我更喜欢住在大城市。以下是我喜欢住在大城市的原因。\n\n首先，大城市提供更多的工作机会和更好的教育。这对我们的工作和学习有好处。在大城市我们可以取得更多学业或职业进步，赚更多的钱。其次，大城市吸引来自全国各地的人。所以我们可以和各行各业的人交朋友。最后，大城市有更好的交通、医疗和娱乐。大城市的生活非常便利和丰富多彩。\n\n总之，在我看来，住在大城市有很多好处。我喜欢住在大城市。"
+  },
+  {
+    "id": 8,
+    "category": "电子邮件",
+    "title": "感谢信",
+    "titleEn": "Thank You Letter",
+    "prompt": "假定你是李华，经常帮助你学习英语的朋友Alex即将返回自己的国家。请给他写一封邮件，内容包括：1.表示感谢；2.回顾Alex对你的帮助；3.临别祝愿。",
+    "english": "Dear Allen,\n\nI am writing to express my heartfelt gratitude for helping me with my English.\n\nWith your help, I try my best to learn English every day. First and foremost, you bought me a lot of English novels, which made me fall in love with learning English. What's more, you taught me to sing many English songs. Singing English songs makes my life more colorful. Last but not least, you suggested that I spend an hour learning English grammar every day. So I'm more and more interested in English and my English has improved greatly.\n\nI wish you and your family good health and happiness. I am looking forward to meeting you.\n\nYours,\nLi Hua",
+    "chinese": "亲爱的艾伦：\n\n我写这封信是为了表达我对您帮助我学习英语的衷心感谢。\n\n在您的帮助下，我每天都尽最大努力学习英语。首先，您给我买了很多英文小说，这让我爱上了学习英语。其次，您教我唱了很多英文歌。唱英文歌让我的生活更加丰富多彩。最后，您建议我每天花一个小时学习英语语法。所以我对英语越来越感兴趣，我的英语也有了很大的提高。\n\n祝您和家人身体健康、幸福快乐。期待见到您。\n\n你的，\n李华"
+  },
+  {
+    "id": 9,
+    "category": "电子邮件",
+    "title": "音乐节邀请",
+    "titleEn": "Invitation to Music Festival",
+    "prompt": "假定你是李华，你校将举办音乐节。请写封邮件邀请你的英国朋友Allen参加，内容包括：1.时间；2.活动安排；3.欢迎他表演节目。",
+    "english": "Dear Allen,\n\nI am writing to invite you to join us in attending our school music festival. I think it would be a good idea if you take part in the music festival.\n\nThe school music festival will take place in the school hall and begin on Sunday. The activity will last for about three hours, from 7:00 pm to 10:00 pm. We will sing, dance and play games at the music festival. I want to introduce some friends to you. At that time, you can make some friends at the music festival, which will enrich your social life.\n\nWhat's more, I hope you can sing an English song at the music festival. I am sure that you will enjoy an unforgettable moment there.\n\nI am looking forward to your coming. I wish you and your family good health and happiness.\n\nYours,\nLi Hua",
+    "chinese": "亲爱的艾伦：\n\n我写信是想邀请你参加我们学校的音乐节。我认为参加音乐节会是个好主意。\n\n学校音乐节将于周日在学校礼堂举行。活动将持续约三个小时，从晚上7点到10点。我们将在音乐节上唱歌、跳舞和玩游戏。我想给你介绍几个朋友。届时你可以在音乐节上交到朋友，这将丰富你的社交生活。\n\n此外，我希望你能在音乐节上唱一首英文歌。我相信你会在那里度过难忘的时光。\n\n期待你的到来。祝你和家人身体健康、幸福快乐。\n\n你的，\n李华"
+  },
+  {
+    "id": 10,
+    "category": "议论文",
+    "title": "网上购物",
+    "titleEn": "Online Shopping",
+    "prompt": "某英文报社正在举办题为\"Online Shopping\"的征文活动。请就此题目写一篇英文短文应征，内容包含：1.你是否喜欢网络购物？2.为什么？",
+    "english": "It is well known that online shopping is very popular and trendy in this day and age. As a matter of fact, almost everyone I know has done some shopping online. Some of my friends buy products on the Internet almost every day. I like online shopping. Here are the reasons why I like online shopping.\n\nFirst and foremost, online shopping is very convenient. We can do the shopping with the help of our computers or smart phones at any place and any time. This saves us the trouble of traveling to and from shops. What's more, online shopping can help us save money, because many products are cheaper online than at physical stores. Last but not least, there are many kinds of goods on the Internet. We have a lot of choices.\n\nAs a result, as far as I am concerned, online shopping has many benefits. To a certain extent, it has become a way of life. I like online shopping.",
+    "chinese": "众所周知，网上购物在当今时代非常流行和时髦。事实上，我认识的几乎每个人都在网上买过东西。我的一些朋友几乎每天都在网上购物。我喜欢网上购物。以下是我喜欢网上购物的原因。\n\n首先，网上购物非常方便。我们可以在电脑或智能手机的帮助下随时随地购物。这省去了我们往返商店的麻烦。其次，网上购物可以帮我们省钱，因为许多商品在网上比实体店便宜。最后，互联网上有很多种类的商品，我们有很多选择。\n\n因此，在我看来，网上购物有很多好处。在某种程度上，它已经成为一种生活方式。我喜欢网上购物。"
+  },
+  {
+    "id": 11,
+    "category": "议论文",
+    "title": "网上购物（第二篇）",
+    "titleEn": "Online Shopping - Version 2",
+    "prompt": "某英文报社正在举办题为\"Online Shopping\"的征文活动。写一篇英文短文表达你对网上购物的看法。",
+    "english": "It is well known that online shopping is very popular and trendy in this day and age. As a matter of fact, online shopping plays an important role in our lives. I like online shopping. Here are the reasons.\n\nOn the one hand, online shopping can save money for me, because many products in offline stores are expensive. On the other hand, online shopping is very convenient. This saves us the trouble of going to and from shops. I almost spend one or two hours shopping online every week and I hardly buy things from offline stores.\n\nAs a result, as far as I am concerned, online shopping has its advantages. I like online shopping.",
+    "chinese": "众所周知，网上购物在当今时代非常流行。事实上，网上购物在我们的生活中扮演着重要的角色。我喜欢网上购物。原因如下。\n\n一方面，网上购物可以帮我省钱，因为实体店的很多商品都很贵。另一方面，网上购物非常方便。这省去了我们往返商店的麻烦。我几乎每周花一两个小时在网上购物，几乎不从实体店买东西。\n\n因此，在我看来，网上购物有它的优点。我喜欢网上购物。"
+  },
+  {
+    "id": 12,
+    "category": "议论文",
+    "title": "网络课程",
+    "titleEn": "Online Courses",
+    "prompt": "某英文报社正在举办题为\"Online Courses\"的征文活动。请就此题目写一篇英文短文应征，内容包括：你是否喜欢网络课程？为什么？",
+    "english": "It is well known that online courses are very popular and trendy in this day and age. As a matter of fact, online courses are good for us in many ways. I like online courses. Here are the reasons why I love online courses.\n\nFirst and foremost, online courses are very convenient. We can study online courses at any time and any place, and we can easily get the materials 24 hours a day from almost any computer in the world. Online courses also save us the trouble of going to and from school. What's more, online courses save money, because the costs of online courses are usually lower than the costs of classroom learning. Last but not least, there are many kinds of courses on the Internet. We have a lot of choices.\n\nAs a result, as far as I am concerned, online courses have many advantages. I like online courses.",
+    "chinese": "众所周知，网络课程在当今时代非常流行。事实上，网络课程在很多方面对我们都有好处。我喜欢网络课程。以下是我喜欢网络课程的原因。\n\n首先，网络课程非常方便。我们可以在任何时间、任何地点学习网络课程，而且我们几乎可以从世界上任何一台电脑上24小时轻松获取资料。网络课程也省去了我们往返学校的麻烦。其次，网络课程省钱，因为网络课程的费用通常低于课堂学习的费用。最后，互联网上有很多种类的课程，我们有很多选择。\n\n因此，在我看来，网络课程有很多优点。我喜欢网络课程。"
+  },
+  {
+    "id": 13,
+    "category": "议论文",
+    "title": "网络课程（第二篇）",
+    "titleEn": "Online Courses - Version 2",
+    "prompt": "某英文报社正在举办题为\"Online Courses\"的征文活动。写一篇英文短文表达你对网络课程的看法。",
+    "english": "It is well known that online courses are very popular and trendy in this day and age. As a matter of fact, online courses are good for us in many ways. I like online courses. Here are the reasons.\n\nOn the one hand, various online courses get me to know the world and help me with my studies. Online courses also teach me many new things. I almost spend one or two hours learning online every day. On the other hand, online courses save money, because classroom learning usually is expensive.\n\nAs a result, as far as I am concerned, online courses have many advantages. I am fond of online courses.",
+    "chinese": "众所周知，网络课程在当今时代非常流行。事实上，网络课程在很多方面对我们都有好处。我喜欢网络课程。原因如下。\n\n一方面，各种各样的网络课程让我了解世界，帮助我的学习。网络课程也教给我很多新东西。我几乎每天花一两个小时在线学习。另一方面，网络课程省钱，因为课堂学习通常很昂贵。\n\n因此，在我看来，网络课程有很多优点。我喜欢网络课程。"
+  },
+  {
+    "id": 14,
+    "category": "议论文",
+    "title": "智能手机",
+    "titleEn": "Smartphone",
+    "prompt": "某英文报社正在举办题为\"Smartphone\"的征文活动。请就此题目写一篇英文短文应征，内容包括：你是否喜欢使用智能手机？智能手机有哪些好处？",
+    "english": "It is well known that smartphones are very popular and trendy in this day and age. Almost every one of my friends has at least one smartphone. As a matter of fact, many young people cannot live without smartphones. Smartphones are good for us in many ways. I like using smartphones. Here are the benefits of smartphones.\n\nFirst and foremost, smartphones are very convenient in our lives. They make it easier for us to stay in touch with our families and friends. And they make it easier for us to communicate with each other. What's more, smartphones have many functions. We can use smartphones to listen to music, watch films, play games, take online courses, do online shopping and many other things. Last but not least, smartphones are used in every area of our lives and have become a necessary tool. Smartphones are very useful for essential arrangements, social contact and business.\n\nAs a result, as far as I am concerned, smartphones have many benefits. I like using smartphones.",
+    "chinese": "众所周知，智能手机在当今时代非常流行。几乎我的每个朋友都至少有一部智能手机。事实上，许多年轻人离不开智能手机。智能手机在很多方面对我们都有好处。我喜欢使用智能手机。以下是智能手机的好处。\n\n首先，智能手机在我们的生活中非常方便。它们让我们更容易与家人和朋友保持联系，也让我们更容易相互沟通。其次，智能手机有很多功能。我们可以用智能手机听音乐、看电影、玩游戏、上网络课程、网上购物等许多事情。最后，智能手机被用于我们生活的每个领域，已经成为必不可少的工具。智能手机对于重要安排、社交联系和商务非常有用。\n\n因此，在我看来，智能手机有很多好处。我喜欢使用智能手机。"
+  },
+  {
+    "id": 15,
+    "category": "议论文",
+    "title": "智能手机（第二篇）",
+    "titleEn": "Smartphone - Version 2",
+    "prompt": "某英文报社正在举办题为\"Smartphone\"的征文活动。写一篇英文短文表达你对智能手机的看法。",
+    "english": "It is well known that smartphones are very popular and trendy in this day and age. Smartphones are good for us in many ways. As a matter of fact, many young people cannot live without smartphones. I like using smartphones.\n\nOn the one hand, smartphones play a vital role in our lives. And they are very convenient. Using smartphones can improve our quality of life. On the other hand, using smartphones is very important for me to get information and knowledge. Playing online games by smartphones can make us feel happy. We also can use smartphones to spend one or two hours learning online every day.\n\nAs a result, as far as I am concerned, smartphones have many benefits. I like using smartphones.",
+    "chinese": "众所周知，智能手机在当今时代非常流行。智能手机在很多方面对我们都有好处。事实上，许多年轻人离不开智能手机。我喜欢使用智能手机。\n\n一方面，智能手机在我们的生活中扮演着重要的角色。它们非常方便。使用智能手机可以提高我们的生活质量。另一方面，使用智能手机对我获取信息和知识非常重要。用智能手机玩网络游戏可以让我们感到快乐。我们也可以每天用智能手机花一两个小时在线学习。\n\n因此，在我看来，智能手机有很多好处。我喜欢使用智能手机。"
+  },
+  {
+    "id": 16,
+    "category": "议论文",
+    "title": "从逆境中学到的",
+    "titleEn": "What I Learn from Adversity",
+    "prompt": "You are going to write in no less than 100 words on the topic: What I learn from adversity. You could base your composition on the Chinese outline given below. 逆境是什么？你经历过什么样的逆境？",
+    "english": "It is well known that adversity is very important in our lives. As a matter of fact, adversity is good for us in many ways. As for me, adversity can enrich my experience. And it is very important for us, we can't live without adversity.\n\nI failed my English exam once. But I think that it is very meaningful. I will try my best to learn English. First, I remember 30 English words every day. Second, I go over the grammar points regularly. Third, I read English articles in newspapers and I read novels written in simple English. Fourth, I listen to English radio programs and watch English TV programs. Finally, I listen to English music and watch English movies. As a result, I'm more and more interested in English and my English has improved greatly.\n\nIn a word, adversity makes me pass the English exam.",
+    "chinese": "众所周知，逆境在我们的生活中非常重要。事实上，逆境在很多方面对我们都有好处。就我而言，逆境可以丰富我的经验。它对我们很重要，我们的生活离不开逆境。\n\n我曾经英语考试不及格。但我认为这很有意义。我会尽最大努力学习英语。首先，我每天记30个英语单词。其次，我定期复习语法点。第三，我读报纸上的英语文章，读简单英语写的小说。第四，我听英语广播节目，看英语电视节目。最后，我听英语音乐，看英语电影。结果，我对英语越来越感兴趣，我的英语有了很大提高。\n\n总之，逆境让我通过了英语考试。"
+  },
+  {
+    "id": 17,
+    "category": "写景记叙文",
+    "title": "春天来了",
+    "titleEn": "Spring is coming",
+    "source": "2020年8月真题范文",
+    "prompt": "以“Spring is coming”为题，描写春天的景象和人们的活动。",
+    "english": "Spring is coming, which is a beautiful and comfortable season. Flowers and trees can be seen everywhere on the street, the weather is always sunny and rainy, it's not cold and not hot, birds are singing in the sky, little animals also come out to meet people.\nIn rural areas, people begin to cultivate crops, and you can see the farmers working in the field. In urban areas, you can see people visiting the park, and maybe flying kites when the weather is good. Many people also choose to climb mountains in spring, because the scenery is very beautiful.\nI love spring, because spring is full of vitality, full of new hope!",
+    "chinese": "春天来了，这是一个美丽而舒适的季节。大街上到处都可以看到鲜花和树木，天气或晴或雨，不冷不热，鸟儿在天空中唱歌，小动物也出来和人们见面。\n在农村，人们开始种植庄稼，你可以看到农民在地里干活。在城市里，你可以看到人们在公园里游玩，天气好的时候还可以看到人们放风筝。许多人也选择在春天爬山，因为那时的风景很漂亮。\n我爱春天，因为春天充满了生机，充满了新的希望！"
+  },
+  {
+    "id": 18,
+    "category": "记叙文",
+    "title": "一次难忘的假期",
+    "titleEn": "An Unforgettable Holiday",
+    "source": "2020年10月真题范文",
+    "prompt": "以“An unforgettable holiday”为题，记叙一次难忘的假期经历。",
+    "english": "Last summer my family went to my uncle's farm. We enjoyed a really interesting holiday. During the holiday, I experienced the life of a farmer, and it was full of fun.\nDuring the holiday, I got up very early in the morning, which I didn't hate, because so many interesting things were waiting for me. I usually rode horses in the fields, and then milked the cows on the farm. To my great joy, my uncle invited me to go fishing, which was such an unforgettable experience.\nLife on the farm is quite different from that at school. I want to go back to spend my summer holiday there again.",
+    "chinese": "去年夏天我们全家去了我叔叔的农场。我度过了一个非常有趣的假期。在假期里，我体验了农民的生活，充满了乐趣。\n在假期期间，我每天早上都起得很早，但我并不讨厌起早，因为有那么多有趣的事情在等着我。我通常在田野里骑马，然后在农场里挤牛奶。让我非常高兴的是，我叔叔邀请我去钓鱼，这真的很难忘。\n农场生活与学校生活大不相同。我想再去那里度暑假。"
+  },
+  {
+    "id": 19,
+    "category": "电子邮件",
+    "title": "介绍春节（致John的邮件）",
+    "titleEn": "The Spring Festival (Dear John)",
+    "source": "2021年4月真题范文",
+    "prompt": "给朋友John写电子邮件，介绍中国最盛大的节日——春节。",
+    "english": "Dear John,\nI'm happy to receive your E-mail, and I will tell you something about China's biggest festival—the Spring Festival.\nThe Spring Festival is actually the lunar new year, which comes from the old Chinese calendar. All family members get together to celebrate the holiday and to welcome the new year. We will clean the house, give gifts to each other, go visit our relatives, and give children the Lucky Money. Many Chinese families get together and have a big family reunion dinner on Chinese New Year's Eve, which means a lot to the Chinese.\nLet me know if you want to learn more about Chinese festivals and I'll be happy to tell you all I know.",
+    "chinese": "亲爱的约翰：\n我很高兴收到你的邮件，我将给你讲讲中国最重大的节日——春节。\n实际上春节是中国的农历新年，它来自旧的中国历法。所有的家庭成员聚在一起庆祝节日，迎接新的一年。我们会打扫房子，互赠礼物，拜亲访友，给孩子们压岁钱。许多中国家庭在除夕夜会聚在一起吃一顿团圆饭，这对中国人来说意义重大。\n如果你想了解更多关于中国节日的知识，请告诉我，我会知无不言。"
+  },
+  {
+    "id": 20,
+    "category": "议论文",
+    "title": "我最喜欢的中国节日",
+    "titleEn": "My Favorite Chinese Festival",
+    "source": "2021年10月真题范文",
+    "prompt": "以“My Favorite Chinese Festival”为题，介绍你最喜欢的中国节日。",
+    "english": "My favorite Chinese festival is the Spring Festival, which is the biggest festival in China and means a lot to Chinese people.\nI like the Spring Festival because it represents the togetherness. All Chinese families will get together and have a big family reunion dinner on Chinese New Year's Eve. During the dinner, people talk about what happened this year and what they want to do in the coming new year. Everything seems to be hopeful and bright. We give Lucky Money to the kids, we clean our houses, and we go to visit our relatives during the holiday. Everything we do is sustained by love and best wishes.",
+    "chinese": "我最喜欢的中国节日是春节，它是中国最盛大的节日，对中国人意义重大。\n我喜欢春节，因为它代表着团圆。所有中国家庭都会在除夕夜团聚，吃一顿丰盛的团圆饭。吃饭时，人们谈论今年发生的事以及新的一年想做的事，一切都显得充满希望和光明。我们给孩子压岁钱，打扫房屋，在节日期间走亲访友。我们所做的一切，都饱含着爱与美好的祝愿。"
+  },
+  {
+    "id": 21,
+    "category": "电子邮件",
+    "title": "学习汉语的建议（致John邮件）",
+    "titleEn": "Learning Chinese (Dear John)",
+    "source": "2022年4月真题范文",
+    "prompt": "外国朋友John想学汉语，征求你的意见。写邮件：支持他学汉语并给出学习建议，以Li Ke署名。",
+    "english": "Dear John,\nLast time you wrote to me that you wanted to learn Chinese and asked for my advice. I am really happy to know that, because Chinese is spoken by a great number of people and I think my mother language is really beautiful and interesting. I will give you as much support as I can.\nI shall first recommend you to start from imitating some daily conversation in Chinese. You can learn from videos and practice by talking directly to Chinese people. Then you can start to learn the Chinese characters and their way of pronunciation—Pinyin. Chinese characters are more like pictures, so you can take the writing as drawing. It's going to be fun. Take a try!\nYours,\nLi Ke",
+    "chinese": "亲爱的约翰：\n上次你写信说想学汉语，并征求我的建议。得知这个消息我真的很高兴，因为有很多人说汉语，而且我觉得我的母语既优美又有趣。我会尽我所能支持你。\n我首先建议你从模仿一些汉语日常对话开始。你可以跟着视频学习，并通过直接和中国人交谈来练习。然后你可以开始学习汉字以及它们的发音方式——拼音。汉字更像是图画，所以你可以把写字当成画画。这会很有趣的，试试看吧！\n你的，\n李可"
+  },
+  {
+    "id": 22,
+    "category": "议论文",
+    "title": "我的梦想之旅",
+    "titleEn": "My Dream Trip",
+    "source": "2022年10月真题范文",
+    "prompt": "以“My Dream Trip”为题应征：你最想去哪里旅游，为什么最想去那里。",
+    "english": "My dream trip is someday to visit Germany, and I have my own reasons for this.\nFirstly, there have been so many great philosophers and classical music composers in its history, and I really want to be there in person to experience a country with such special culture and history.\nSecondly, it is said that once you have the visa of one European country, you have the pass to go around many other European countries once for all. Germany is such an important part of Europe that I can take it as a point of departure for most of Europe.\nLast but not least, I have learned German for a long time, and I really want to talk with people in a German-speaking country to practice my oral German.",
+    "chinese": "我的梦想之旅是有朝一日去德国，对此我有自己的理由。\n首先，德国历史上涌现了如此多伟大的哲学家和古典音乐作曲家，我真的很想亲自去到那里，体验一个拥有如此独特文化和历史的国家。\n其次，据说一旦你获得了一个欧洲国家的签证，就等于拿到了一劳永逸畅游许多其他欧洲国家的通行证。德国是欧洲如此重要的一部分，我可以把它作为游览欧洲大部分地区的出发点。\n最后但同样重要的是，我学德语已经很久了，我真的很想到一个说德语的国家和当地人交流，练习我的德语口语。"
+  }
+];
+const TEMPLATES = {
+  "connectors": {
+    "first": [
+      "First and foremost",
+      "In the first place",
+      "Firstly",
+      "To begin with"
+    ],
+    "second": [
+      "What's more",
+      "In addition",
+      "Secondly",
+      "Moreover",
+      "Furthermore"
+    ],
+    "last": [
+      "Last but not least",
+      "Finally",
+      "Thirdly"
+    ],
+    "two_sides": [
+      "On the one hand ... On the other hand ..."
+    ],
+    "example": [
+      "for example",
+      "for instance"
+    ],
+    "explain": [
+      "in fact",
+      "in other words"
+    ],
+    "therefore": [
+      "therefore",
+      "accordingly",
+      "consequently",
+      "as a result"
+    ],
+    "conclusion": [
+      "in conclusion",
+      "in general",
+      "on the whole",
+      "all in all",
+      "in a word",
+      "to sum up"
+    ],
+    "transition": [
+      "however",
+      "on the contrary",
+      "instead",
+      "nevertheless"
+    ]
+  },
+  "opening_sentences": [
+    "It is well known that ... is very important/necessary in our lives in this day and age.",
+    "It is universally acknowledged that ... is very popular and trendy in our lives in this day and age.",
+    "As a matter of fact, ... is good for us in many ways.",
+    "With the rapid development of science and technology, ..."
+  ],
+  "golden_sentences": {
+    "positive": "..., which has been widely accepted by the public.（这已被公众广泛接受）",
+    "negative": "..., which might have brought us unexpected trouble.（这可能给我们带来意想不到的麻烦）"
+  },
+  "silver_sentences": [
+    "with the rapid development of science and technology 随着科学技术的快速发展",
+    "in this day and age 在当今时代",
+    "to a certain extent 在某种程度上",
+    "in the general routine of everyday living 在日常生活中"
+  ],
+  "argument_template": {
+    "name": "议论文三段论模板",
+    "structure": [
+      "首段(引入+观点)",
+      "主体段(First/What's more/Last三点)",
+      "结尾段(As a result总结)"
+    ],
+    "template": "It is universally acknowledged that ___ is very necessary in our lives in this day and age. As a matter of fact, ___ is good/bad for us in many ways. Some people think that ___, but from my perspective, ___. Here are the reasons why.\n\nFirst and foremost, it is obvious that ___. What's more, there is no doubt that ___. Last but not least, it goes without saying that ___.\n\nAs a result, as far as I am concerned, ___.",
+    "chinese_outline": "众所周知……很重要；事实上……有利/弊；我认为……，以下是原因。首先显而易见……，其次毫无疑问……，最后不用说……。因此就我而言……"
+  },
+  "email_template": {
+    "name": "电子邮件/信件模板",
+    "opening": [
+      "Dear XX,",
+      "I am writing to tell you that... 我写信是想告诉你……",
+      "I am writing to thank you for... 我写信是为了感谢你……",
+      "I'm glad to hear/know that... 听说……我很高兴"
+    ],
+    "body": "主体段（按题目要点展开，可用First/Second/Last连接）",
+    "closing": [
+      "I wish you and your family good health and happiness. 祝你和家人健康快乐。",
+      "I am looking forward to your early reply. 期待你的早日回复。",
+      "I am looking forward to meeting you. 期待与你见面。"
+    ],
+    "signature": [
+      "Yours sincerely, / Sincerely yours,",
+      "Li Ke（按题目署名）"
+    ]
+  },
+  "good_sentences": [
+    "Many products are cheaper online than in physical stores. 许多产品网上比实体店便宜。",
+    "Online shopping has many benefits. To a certain extent, it has become a way of life. 网购有很多好处，某种程度上已成一种生活方式。",
+    "I prefer online shopping to offline shopping. 比起线下购物，我更喜欢网购。",
+    "Online courses save money, because the costs of online courses are usually lower than the costs of classroom learning. 网络课程省钱，因其成本通常低于课堂学习。",
+    "There are many wonderful places in the world that people can visit. 世界上有许多美妙的地方可供游览。",
+    "In my opinion, the best place to go is Lijiang. 在我看来，最好的去处是丽江。",
+    "We also can use smartphones to spend one or two hours learning online every day. 我们也可以每天用智能手机花一两个小时在线学习。",
+    "I am glad to know that you were admitted to the university you applied for. Congratulations to you. 听说你被申请的大学录取了，恭喜你。"
+  ]
+};
+
+function esc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function goBack(){
+  if(history.length>1){ history.back(); } else { location.href='index.html'; }
+}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
+  document.getElementById('panel-'+name).classList.add('show');
+}
+function renderTopics(){
+  const list=document.getElementById('topicsList');
+  const topics=Array.isArray(TOPICS)?TOPICS:(TOPICS.topics||[]);
+  document.getElementById('topicsCount').textContent='共 '+topics.length+' 道真题作文题';
+  list.innerHTML=topics.map(function(t,i){
+    const sample=t.hasSample&&t.sampleId&&t.sampleId.length>0
+      ? '<button class="sample-btn" onclick="showEssay('+t.sampleId[0]+')">查看范文</button>':'';
+    return '<div class="item">'+
+      '<div class="item-head"><span class="badge">'+esc(t.year)+'</span><span class="badge cn">'+esc(t.type)+'</span></div>'+
+      '<h3>'+esc(t.titleEn)+'</h3>'+
+      '<div class="en">'+esc(t.titleCn)+' · '+esc(t.exam)+'</div>'+
+      '<div class="points">'+t.points.map(function(p){return '· '+esc(p);}).join('<br>')+'</div>'+
+      sample+
+    '</div>';
+  }).join('');
+}
+function renderEssays(){
+  const list=document.getElementById('essaysList');
+  const essays=Array.isArray(ESSAYS)?ESSAYS:(ESSAYS.essays||[]);
+  document.getElementById('essaysCount').textContent='共 '+essays.length+' 篇完整范文';
+  list.innerHTML=essays.map(function(e){
+    return '<div class="item" onclick="showEssay('+e.id+')" style="cursor:pointer">'+
+      '<div class="item-head"><span class="badge essay">'+esc(e.category)+'</span><span class="badge cn">No.'+e.id+'</span></div>'+
+      '<h3>'+esc(e.title)+'</h3>'+
+      '<div class="en">'+esc(e.titleEn)+' · '+esc(e.source||'')+'</div>'+
+    '</div>';
+  }).join('');
+}
+function showEssay(id){
+  const essays=Array.isArray(ESSAYS)?ESSAYS:(ESSAYS.essays||[]);
+  const e=essays.find(function(x){return x.id===id;});
+  if(!e) return;
+  document.getElementById('detailTitle').textContent=e.title;
+  document.getElementById('detailMeta').textContent=(e.titleEn||'')+' · '+(e.category||'')+' · '+(e.source||'');
+  document.getElementById('flipEn').textContent=e.english;
+  document.getElementById('flipZh').textContent=e.chinese;
+  document.getElementById('flipCard').classList.remove('flipped');
+  document.getElementById('detail').classList.add('show');
+}
+function closeDetail(){ document.getElementById('detail').classList.remove('show'); }
+function renderTemplates(){
+  const box=document.getElementById('templatesList');
+  const t=TEMPLATES||{};
+  let html='';
+  if(t.connectors){
+    const names={first:'开头',second:'递进',last:'结尾',two_sides:'两面',example:'举例',explain:'解释',therefore:'因果',conclusion:'总结',transition:'转折'};
+    html+='<div class="tpl-group"><h3>逻辑连接词</h3>';
+    Object.keys(t.connectors).forEach(function(k){
+      const arr=t.connectors[k]||[];
+      html+='<div class="tpl-row"><b>'+esc(names[k]||k)+'</b>：'+esc(arr.join(' / '))+'</div>';
+    });
+    html+='</div>';
+  }
+  if(t.opening_sentences){
+    html+='<div class="tpl-group"><h3>万能开头</h3>'+(t.opening_sentences.map(function(s){return '<div class="tpl-row">'+esc(s)+'</div>';}).join(''))+'</div>';
+  }
+  if(t.golden_sentences){
+    html+='<div class="tpl-group"><h3>黄金句</h3>';
+    Object.keys(t.golden_sentences).forEach(function(k){
+      html+='<div class="tpl-row"><b>'+esc(k==='positive'?'正面':'负面')+'</b>：'+esc(t.golden_sentences[k])+'</div>';
+    });
+    html+='</div>';
+  }
+  if(t.silver_sentences){
+    html+='<div class="tpl-group"><h3>白银凑字句</h3>'+(t.silver_sentences.map(function(s){return '<div class="tpl-row">'+esc(s)+'</div>';}).join(''))+'</div>';
+  }
+  if(t.argument_template){
+    const a=t.argument_template;
+    html+='<div class="tpl-group"><h3>'+esc(a.name||'议论文模板')+'</h3>'+
+      '<div class="tpl-row"><b>结构</b>：'+esc((a.structure||[]).join(' → '))+'</div>'+
+      '<div class="tpl-row">'+esc(a.template||'')+'</div>'+
+      '<div class="tpl-row"><b>中文提纲</b>：'+esc(a.chinese_outline||'')+'</div></div>';
+  }
+  if(t.email_template){
+    const e=t.email_template;
+    html+='<div class="tpl-group"><h3>'+esc(e.name||'邮件模板')+'</h3>'+
+      '<div class="tpl-row"><b>开头</b>：'+esc((e.opening||[]).join(' / '))+'</div>'+
+      '<div class="tpl-row"><b>正文</b>：'+esc(e.body||'')+'</div>'+
+      '<div class="tpl-row"><b>结尾</b>：'+esc((e.closing||[]).join(' / '))+'</div>'+
+      '<div class="tpl-row"><b>署名</b>：'+esc((e.signature||[]).join(' / '))+'</div></div>';
+  }
+  if(t.good_sentences){
+    html+='<div class="tpl-group"><h3>高分好句</h3>'+(t.good_sentences.map(function(s){return '<div class="tpl-row">'+esc(s)+'</div>';}).join(''))+'</div>';
+  }
+  box.innerHTML=html;
+}
+renderTopics();
+renderEssays();
+renderTemplates();
+</script>
+</body>
+</html>
