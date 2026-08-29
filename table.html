@@ -396,10 +396,19 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ================= 队列构建 =================
 function initProg(){
   if(!prog){
-    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,wrongWords:[],directPos:0,perm:[],lastDate:'',finished:false};
+    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,wrongWords:[],perm:[],lastDate:'',finished:false};
   }
   if(!prog.tags) prog.tags={};
   if(!prog.difficult) prog.difficult=[];
+  if(!prog.studied) prog.studied=[];
+  if(!prog.wrongWords) prog.wrongWords=[];
+  if(typeof prog.pos!=='number'||prog.pos<0) prog.pos=0;
+  if(typeof prog.directPos!=='number'||prog.directPos<0) prog.directPos=0;
+  if(typeof prog.dayIndex!=='number'||prog.dayIndex<0) prog.dayIndex=0;
+  if(!Array.isArray(prog.perm)) prog.perm=[];
+  if(typeof prog.mode!=='string') prog.mode='free';
+  if(typeof prog.finished!=='boolean') prog.finished=false;
+  if(typeof prog.lastDate!=='string') prog.lastDate='';
   // 迁移旧difficult数据到tags.hard
   if(prog.difficult && prog.difficult.length>0){
     var migrated=false;
