@@ -6,9 +6,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>专升本英语 4500 单词学习表</title>
-<meta name="description" content="专升本英语 4500 核心单词 · 卡片速记 · 计划学习 · 难点生词 · 进度记忆">
-<meta property="og:title" content="专升本英语 4500 单词学习表">
+<title>专升本英语 4496 单词学习表</title>
+<meta name="description" content="专升本英语 4496 核心单词 · 卡片速记 · 计划学习 · 难点生词 · 进度记忆">
+<meta property="og:title" content="专升本英语 4496 单词学习表">
 <meta property="og:description" content="卡片式背单词：滑动下一个、难点标记、学习计划、进度自动保存">
 <meta property="og:type" content="website">
 <style>
@@ -188,7 +188,7 @@
 <body>
 <div id="app">
   <header>
-    <div class="logo">专升本英语 · 卡片速记<small>4500 词</small></div>
+    <div class="logo">专升本英语 · 卡片速记<small>4496 词</small></div>
     <button class="gear" onclick="openSettings()">⚙️</button>
   </header>
 
@@ -530,7 +530,7 @@ function next(learned){
   if(learned!==false) learned=true;
   const wi=currentWordIndex();
   if(learned && prog.studied.indexOf(wi)<0) prog.studied.push(wi);
-  if(prog.pos<queue.length-1){ prog.pos++; }
+  if(prog.pos<queue.length){ prog.pos++; } // 修复:最后一词也要推进到length以触发完成页
   if(directMode && !jumpMode) prog.directPos=prog.pos;
   save(LS_PROG,prog);
   render();
@@ -1345,7 +1345,9 @@ function closeQuiz(){
 }
 
 function showWrongListFromQuiz(){
-  closeQuiz();
+  // 修复:只关测验面板,不能调用closeQuiz()(其内部goHome会跳首页),再打开错题列表
+  document.getElementById('quizPanel').classList.remove('show');
+  quizState=null;
   showWrongList();
 }
 
