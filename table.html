@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN"><head>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>专升本英语 4496 单词学习表</title>
 <meta name="description" content="专升本英语 4496 核心单词 · 卡片速记 · 计划学习 · 难点生词 · 进度记忆">
 <meta property="og:title" content="专升本英语 4496 单词学习表">
@@ -193,20 +193,20 @@
   </header>
 
   <div class="planbar">
-    <div id="planText">📖 自由学习（A–Z）</div>
-    <div id="planDate">2026-8-29</div>
+    <div id="planText">自由学习</div>
+    <div id="planDate"></div>
   </div>
-  <div class="progress"><i id="progFill" style="width: 0%;"></i></div>
-  <div class="roundline" id="roundText">第 1 / 225 轮 · 本轮 1 / 20</div>
+  <div class="progress"><i id="progFill"></i></div>
+  <div class="roundline" id="roundText"></div>
 
   <div class="stage">
     <div class="card" id="card" onclick="toggleMeaning()">
-      <span class="tag" id="cardTag" style="background: rgb(224, 242, 254); color: rgb(14, 165, 233);">NEW</span>
-      <span class="num" id="cardNum">1 / 4496</span>
-      <div class="word" id="word">a/an</div>
-      <div class="ipa" id="ipa">[(ə; eɪ)]</div>
+      <span class="tag" id="cardTag">NEW</span>
+      <span class="num" id="cardNum"></span>
+      <div class="word" id="word"></div>
+      <div class="ipa" id="ipa"></div>
       <button class="speaker" id="speakBtn" onclick="playSound(event)">🔊</button>
-      <div class="meaning" id="meaning" data-def="一(个)；任何一(个)；每一(个)">一(个)；任何一(个)；每一(个)</div>
+      <div class="meaning hidden" id="meaning"><span class="hint">轻点显示释义</span></div>
       <div class="card-tags" id="cardTags"></div>
     </div>
     <div class="hintbar"><span>👈左滑=下一个  👉右滑=上一个</span><span>点击卡片看释义</span></div>
@@ -222,8 +222,8 @@
   <div class="stats">
     <div><b id="stStudied">0</b>已学</div>
     <div><b id="stDiff">0</b>难点</div>
-    <div><b id="stToday">4496</b>今日目标</div>
-    <div><b id="stLeft">4495</b>剩余</div>
+    <div><b id="stToday">0</b>今日目标</div>
+    <div><b id="stLeft">0</b>剩余</div>
   </div>
 
   <!-- 完成页 -->
@@ -267,7 +267,7 @@
       </div>
       <div class="rowbtns">
         <button class="btn-reset" onclick="resetProgress()">重置进度</button>
-        <button class="btn-cancel" onclick="cancelSettings()">取消</button>
+        <button class="btn-cancel" onclick="closeSettings()">取消</button>
         <button class="btn-save" onclick="saveSettings()">保存设置</button>
       </div>
     </div>
@@ -352,8 +352,8 @@
   <div class="toast" id="toast"></div>
   <!-- 底部导航 -->
   <nav class="bottomnav" id="bottomNav">
-    <button onclick="goHome()" class="" id="navHome"><span class="ic">🏠</span>首页</button>
-    <button onclick="showStudy()" id="navStudy" class="active"><span class="ic">📖</span>学习</button>
+    <button onclick="goHome()" class="active" id="navHome"><span class="ic">🏠</span>首页</button>
+    <button onclick="showStudy()" id="navStudy"><span class="ic">📖</span>学习</button>
     <button onclick="showWordList()" id="navList"><span class="ic">📚</span>词表</button>
     <button onclick="showDifficult()" id="navDiff"><span class="ic">⚠️</span>难点库</button>
   </nav>
@@ -396,19 +396,10 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ================= 队列构建 =================
 function initProg(){
   if(!prog){
-    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,wrongWords:[],perm:[],lastDate:'',finished:false};
+    prog={mode:'free',dayIndex:0,pos:0,studied:[],difficult:[],tags:{},directPos:0,wrongWords:[],directPos:0,perm:[],lastDate:'',finished:false};
   }
   if(!prog.tags) prog.tags={};
   if(!prog.difficult) prog.difficult=[];
-  if(!prog.studied) prog.studied=[];
-  if(!prog.wrongWords) prog.wrongWords=[];
-  if(typeof prog.pos!=='number'||prog.pos<0) prog.pos=0;
-  if(typeof prog.directPos!=='number'||prog.directPos<0) prog.directPos=0;
-  if(typeof prog.dayIndex!=='number'||prog.dayIndex<0) prog.dayIndex=0;
-  if(!Array.isArray(prog.perm)) prog.perm=[];
-  if(typeof prog.mode!=='string') prog.mode='free';
-  if(typeof prog.finished!=='boolean') prog.finished=false;
-  if(typeof prog.lastDate!=='string') prog.lastDate='';
   // 迁移旧difficult数据到tags.hard
   if(prog.difficult && prog.difficult.length>0){
     var migrated=false;
@@ -638,9 +629,9 @@ function renderTagList(){
   const box=document.getElementById('tagList');
   box.innerHTML=tags.map(function(t){
     const active=cur.indexOf(t.id)>=0;
-    return '<div class="tag-opt'+(active?' active':'')+'" data-id="'+esc(t.id)+'" onclick="toggleTagOpt(this)">'+
-      '<span class="dot" style="background:'+esc(t.color)+'"></span>'+
-      '<span class="name">'+esc(t.name)+'</span>'+
+    return '<div class="tag-opt'+(active?' active':'')+'" data-id="'+t.id+'" onclick="toggleTagOpt(this)">'+
+      '<span class="dot" style="background:'+t.color+'"></span>'+
+      '<span class="name">'+t.name+'</span>'+
       (active?'<span class="check">✓</span>':'')+
     '</div>';
   }).join('');
@@ -679,7 +670,7 @@ function renderCardTags(){
   if(!box) return;
   box.innerHTML=tags.map(function(tid){
     const t=cfg.find(function(x){return x.id===tid;});
-    return t?'<span class="card-tag" style="background:'+esc(t.color)+'">'+esc(t.name)+'</span>':'';
+    return t?'<span class="card-tag" style="background:'+t.color+'">'+t.name+'</span>':'';
   }).join('');
 }
 
@@ -772,8 +763,7 @@ function openSettings(){
   document.querySelectorAll('input[name=accent]').forEach(r=>r.checked=(r.value===cfg.accent));
   document.getElementById('settings').classList.add('show');
 }
-function closeSettings(){ document.getElementById('settings').classList.remove('show'); }
-function cancelSettings(){ closeSettings(); goHome(); }
+function closeSettings(){ document.getElementById('settings').classList.remove('show'); goHome(); }
 function saveSettings(){
   const days=parseInt(document.getElementById('inDays').value)||0;
   const round=parseInt(document.getElementById('inRound').value)||20;
@@ -946,13 +936,28 @@ function startDifficultReview(){
   render();
   toast('开始复习 · 共 '+queue.length+' 词');
 }
+function showStudiedList(){
+  const studied=(prog.studied||[]).filter(function(i){return DATA[i]&&DATA[i][2];});
+  if(studied.length===0){
+    toast('还没有已学习的单词，开始学习后会自动记录');
+    return;
+  }
+  wlFilter='studied';
+  wlTagFilter='all';
+  document.getElementById('wlModeLabel').textContent='· 已学习 ('+studied.length+')';
+  document.getElementById('wlSearch').value='';
+  document.getElementById('wlPanel').classList.add('show');
+  document.getElementById('donePage').classList.remove('show');
+  setActiveNav('navList');
+  buildLetters(); renderWordList();
+}
 function closeWordList(){
   document.getElementById('wlPanel').classList.remove('show');
   goHome();
 }
 // ================= 总词表 =================
 function buildLetters(){
-  if(wlFilter==='wrong'){
+  if(wlFilter==='wrong'||wlFilter==='studied'){
     document.getElementById('wlLetters').innerHTML='';
     return;
   }
@@ -1017,6 +1022,8 @@ function renderWordList(){
           if(!hasHard && wtags.indexOf('hard')<0) continue;
         }else if(wtags.indexOf(wlTagFilter)<0) continue;
       }
+    } else if(wlFilter==='studied'){
+      if(prog.studied.indexOf(i)<0) continue;
     } else if(wlFilter!=='all' && w[0].toUpperCase()!==wlFilter){
       continue;
     }
@@ -1134,6 +1141,7 @@ function jumpToWord(idx){
 function handleHash(){
   const h=location.hash.replace('#','').toLowerCase();
   if(h==='wordlist'){ showWordList(); }
+  else if(h==='studied'){ showStudiedList(); }
   else if(h==='difficult'){ showDifficult(); }
   else if(h==='wrong'){ showWrongList(); }
   else if(h==='quiz'){ if(!queue.length) buildQueue(); render(); openQuizConfig(); }
@@ -1403,6 +1411,5 @@ function startWrongReview(){
 
 
 </script>
-
-
-</body></html>
+</body>
+</html>
