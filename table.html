@@ -267,18 +267,30 @@
       </div>
       <div class="field">
         <label>进度同步（换设备 / 换浏览器）</label>
-        <div style="display:flex;gap:8px">
-          <button onclick="exportProgress()" style="flex:1;height:40px;border-radius:10px;border:1.5px solid #14b8a6;background:#f0fdfa;color:#0d9488;font-size:14px;font-weight:600;cursor:pointer">📤 导出进度</button>
-          <button onclick="document.getElementById('importFile').click()" style="flex:1;height:40px;border-radius:10px;border:1.5px solid #6366f1;background:#eef2ff;color:#4f46e5;font-size:14px;font-weight:600;cursor:pointer">📥 导入进度</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="showExportCode()" style="flex:1;min-width:130px;height:42px;border-radius:10px;border:1.5px solid #14b8a6;background:#14b8a6;color:#fff;font-size:14px;font-weight:600;cursor:pointer">📋 复制进度码<span style="font-size:11px;opacity:.85">（微信推荐）</span></button>
+          <button onclick="showImportCode()" style="flex:1;min-width:130px;height:42px;border-radius:10px;border:1.5px solid #6366f1;background:#6366f1;color:#fff;font-size:14px;font-weight:600;cursor:pointer">📝 粘贴进度码</button>
+          <button onclick="exportProgress()" style="flex:1;min-width:130px;height:38px;border-radius:10px;border:1.5px solid #14b8a6;background:#f0fdfa;color:#0d9488;font-size:13px;font-weight:600;cursor:pointer">📤 导出文件</button>
+          <button onclick="document.getElementById('importFile').click()" style="flex:1;min-width:130px;height:38px;border-radius:10px;border:1.5px solid #6366f1;background:#eef2ff;color:#4f46e5;font-size:13px;font-weight:600;cursor:pointer">📥 导入文件</button>
           <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importProgress(event)">
         </div>
-        <div class="desc">旧设备点「导出进度」保存 JSON 文件，新设备点「导入进度」选择该文件即可恢复学习进度、难点、错题和设置。</div>
+        <div class="desc">微信内学习请用「复制进度码」：复制文本发给自己，电脑端点「粘贴进度码」恢复，无需下载文件。普通浏览器也可用导出/导入文件。</div>
       </div>
       <div class="rowbtns">
         <button class="btn-reset" onclick="resetProgress()">重置进度</button>
         <button class="btn-cancel" onclick="closeSettings()">取消</button>
         <button class="btn-save" onclick="saveSettings()">保存设置</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 进度码弹窗 -->
+  <div class="mask" id="codeBox">
+    <div class="sheet" style="max-width:440px">
+      <h3 id="codeBoxTitle">进度码</h3>
+      <textarea id="codeText" style="width:100%;height:180px;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;font-family:monospace;resize:vertical" placeholder="把另一台设备复制的进度码粘贴到这里"></textarea>
+      <div class="desc" id="codeHint" style="margin:6px 0"></div>
+      <div class="rowbtns" id="codeBtns"></div>
     </div>
   </div>
 
@@ -819,6 +831,77 @@ function importProgress(e){
   };
   reader.readAsText(file);
   e.target.value='';
+}
+// ===== 进度码(文本)方式: 解决微信内置浏览器无法下载文件 =====
+function buildProgressCode(){
+  const data={
+    prog: JSON.parse(localStorage.getItem(LS_PROG)||'null'),
+    cfg: JSON.parse(localStorage.getItem(LS_CFG)||'null'),
+    t: Date.now()
+  };
+  return 'VOCAB'+JSON.stringify(data);
+}
+function applyProgData(data){
+  if(!data||!data.prog){ toast('进度数据无效'); return false; }
+  localStorage.setItem(LS_PROG,JSON.stringify(data.prog));
+  if(data.cfg) localStorage.setItem(LS_CFG,JSON.stringify(data.cfg));
+  return true;
+}
+function closeCodeBox(){ document.getElementById('codeBox').classList.remove('show'); }
+function showExportCode(){
+  const n=new Set((JSON.parse(localStorage.getItem(LS_PROG)||'{}')).studied||[]).size;
+  if(n===0){ toast('当前没有学习记录可导出'); return; }
+  const ta=document.getElementById('codeText');
+  ta.value=buildProgressCode();
+  ta.readOnly=true;
+  document.getElementById('codeBoxTitle').textContent='复制进度码（已学 '+n+' 词）';
+  document.getElementById('codeHint').textContent='点「一键复制」，或长按文本框全选复制；然后通过微信文件传输助手发到电脑。';
+  document.getElementById('codeBtns').innerHTML=
+    '<button class="btn-save" onclick="copyCodeText()">一键复制</button>'+
+    '<button class="btn-cancel" onclick="closeCodeBox()">关闭</button>';
+  document.getElementById('codeBox').classList.add('show');
+  setTimeout(function(){ta.focus();ta.select();},100);
+}
+function copyCodeText(){
+  const ta=document.getElementById('codeText');
+  ta.focus();ta.select();
+  let ok=false;
+  try{ ok=document.execCommand('copy'); }catch(e){ ok=false; }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(function(){toast('已复制，去微信发给自己 ✓');}).catch(function(){
+      toast(ok?'已复制 ✓':'请长按文本框手动选择复制');
+    });
+  }else{
+    toast(ok?'已复制，去微信发给自己 ✓':'请长按文本框手动选择复制');
+  }
+}
+function showImportCode(){
+  const ta=document.getElementById('codeText');
+  ta.value='';ta.readOnly=false;
+  document.getElementById('codeBoxTitle').textContent='粘贴进度码';
+  document.getElementById('codeHint').textContent='把另一台设备复制的以 VOCAB 开头的进度码完整粘贴到下面：';
+  document.getElementById('codeBtns').innerHTML=
+    '<button class="btn-save" onclick="applyImportCode()">恢复进度</button>'+
+    '<button class="btn-cancel" onclick="closeCodeBox()">取消</button>';
+  document.getElementById('codeBox').classList.add('show');
+  setTimeout(function(){ta.focus();},100);
+}
+function applyImportCode(){
+  let txt=document.getElementById('codeText').value.trim();
+  if(!txt){ toast('请先粘贴进度码'); return; }
+  // 容错: 去掉可能混入的前后说明文字,截取VOCAB到末尾大括号
+  const i=txt.indexOf('VOCAB');
+  if(i>=0) txt=txt.substring(i+5);
+  const last=txt.lastIndexOf('}');   // 去掉复制时混入的后缀文字
+  if(last>=0) txt=txt.substring(0,last+1);
+  try{
+    const data=JSON.parse(txt);
+    if(applyProgData(data)){
+      closeCodeBox();
+      toast('进度恢复成功，即将刷新…');
+      setTimeout(function(){location.reload();},800);
+    }
+  }catch(err){ toast('进度码不完整或有误，请重新全选复制'); }
 }
 function resetProgress(){
   if(!confirm('确定清空所有学习进度吗？（已学/难点记录都会被清除）')) return;
