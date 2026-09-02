@@ -316,6 +316,7 @@
           <div class="q-opt active" data-type="all">全部单词</div>
           <div class="q-opt" data-type="learned">已学习</div>
           <div class="q-opt" data-type="hard">难点词</div>
+          <div class="q-opt" data-type="wrong">错题词</div>
         </div>
       </div>
       <div class="q-group">
@@ -1318,6 +1319,8 @@ function getQuizPool(type){
     pool=(prog.studied||[]).slice();
   }else if(type==='hard'){
     pool=(prog.difficult||[]).slice();
+  }else if(type==='wrong'){
+    pool=(prog.wrongWords||[]).slice();
   }
   return pool.filter(function(i){return DATA[i]&&DATA[i][2];});
 }
