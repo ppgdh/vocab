@@ -942,14 +942,20 @@ function showStudiedList(){
     toast('还没有已学习的单词，开始学习后会自动记录');
     return;
   }
-  wlFilter='studied';
-  wlTagFilter='all';
-  document.getElementById('wlModeLabel').textContent='· 已学习 ('+studied.length+')';
-  document.getElementById('wlSearch').value='';
-  document.getElementById('wlPanel').classList.add('show');
+  // 卡片模式: queue严格只含已学词, snapshot保存原进度,退出时自动恢复
+  reviewMode=true;
+  prog.reviewSnapshot={directMode:directMode,pos:prog.pos,directPos:prog.directPos,studyPos:prog.studyPos};
+  directMode=false;
+  prog.directMode=false;
+  queue=studied.slice();
+  dayLength=queue.length;
+  prog.pos=0;
+  document.getElementById('wlPanel').classList.remove('show');
   document.getElementById('donePage').classList.remove('show');
   setActiveNav('navList');
-  buildLetters(); renderWordList();
+  save(LS_PROG,prog);
+  render();
+  toast('已学习单词 · 共 '+queue.length+' 词');
 }
 function closeWordList(){
   document.getElementById('wlPanel').classList.remove('show');
