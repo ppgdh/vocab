@@ -265,6 +265,15 @@
           <label><input type="radio" name="accent" value="uk"><span>英音</span></label>
         </div>
       </div>
+      <div class="field">
+        <label>进度同步（换设备 / 换浏览器）</label>
+        <div style="display:flex;gap:8px">
+          <button onclick="exportProgress()" style="flex:1;height:40px;border-radius:10px;border:1.5px solid #14b8a6;background:#f0fdfa;color:#0d9488;font-size:14px;font-weight:600;cursor:pointer">📤 导出进度</button>
+          <button onclick="document.getElementById('importFile').click()" style="flex:1;height:40px;border-radius:10px;border:1.5px solid #6366f1;background:#eef2ff;color:#4f46e5;font-size:14px;font-weight:600;cursor:pointer">📥 导入进度</button>
+          <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importProgress(event)">
+        </div>
+        <div class="desc">旧设备点「导出进度」保存 JSON 文件，新设备点「导入进度」选择该文件即可恢复学习进度、难点、错题和设置。</div>
+      </div>
       <div class="rowbtns">
         <button class="btn-reset" onclick="resetProgress()">重置进度</button>
         <button class="btn-cancel" onclick="closeSettings()">取消</button>
@@ -779,6 +788,37 @@ function saveSettings(){
   closeSettings();
   toast('设置已保存');
   render();
+}
+function exportProgress(){
+  const data={
+    prog: JSON.parse(localStorage.getItem(LS_PROG)||'null'),
+    cfg: JSON.parse(localStorage.getItem(LS_CFG)||'null'),
+    exportTime: new Date().toISOString()
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='vocab_progress_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  toast('进度已导出 ✓');
+}
+function importProgress(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(data.prog){ localStorage.setItem(LS_PROG,JSON.stringify(data.prog)); }
+      if(data.cfg){ localStorage.setItem(LS_CFG,JSON.stringify(data.cfg)); }
+      toast('进度导入成功，即将刷新…');
+      setTimeout(function(){location.reload();},800);
+    }catch(err){ toast('导入失败：文件格式不正确'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
 }
 function resetProgress(){
   if(!confirm('确定清空所有学习进度吗？（已学/难点记录都会被清除）')) return;
